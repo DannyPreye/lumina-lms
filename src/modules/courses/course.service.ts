@@ -7,6 +7,53 @@ import slugify from 'slugify';
 
 export class CourseService
 {
+    static async listInstructorCourses(instructorId: string, query: any)
+    {
+        const {
+            page = 1,
+            limit = 10,
+            category,
+            level,
+            pricingType,
+            search,
+            sort = '-createdAt'
+        } = query;
+
+        const filter: any = { instructorId };
+
+        if (category) {
+            filter.$or = [ { category }, { subcategory: category } ];
+        }
+        if (level) {
+            filter.level = level;
+        }
+        if (pricingType) {
+            filter[ 'pricing.type' ] = pricingType;
+        }
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { shortDescription: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+        const courses = await Course.find(filter)
+            .populate('instructorId', 'profile')
+            .sort(sort as string)
+            .skip(skip)
+            .limit(parseInt(limit as string));
+
+        const total = await Course.countDocuments(filter);
+
+        return {
+            courses,
+            total,
+            page: parseInt(page as string),
+            pages: Math.ceil(total / parseInt(limit as string))
+        };
+    }
     static async createCourse(instructorId: string, courseData: any)
     {
         const slug = slugify(courseData.title, { lower: true });

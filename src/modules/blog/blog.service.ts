@@ -24,6 +24,45 @@ export class BlogService
         return post;
     }
 
+    static async listUserBlogs(authorId: string, query: any)
+    {
+        const {
+            page = 1,
+            limit = 10,
+            category,
+            tag,
+            search,
+            status,
+            sort = '-createdAt'
+        } = query;
+
+        const filter: any = { authorId };
+        if (status) filter.status = status;
+        if (category) filter.categoryId = category;
+        if (tag) filter.tags = tag;
+        if (search) {
+            filter.$text = { $search: search };
+        }
+
+        const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+        const posts = await BlogPost.find(filter)
+            .populate('authorId', 'profile.firstName profile.lastName profile.displayName profile.avatar')
+            .populate('categoryId', 'name slug')
+            .sort(sort as string)
+            .skip(skip)
+            .limit(parseInt(limit as string));
+
+        const total = await BlogPost.countDocuments(filter);
+
+        return {
+            posts,
+            total,
+            page: parseInt(page as string),
+            pages: Math.ceil(total / parseInt(limit as string))
+        };
+    }
+
     static async listPosts(query: any)
     {
         const {

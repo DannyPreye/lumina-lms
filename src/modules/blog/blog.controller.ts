@@ -53,4 +53,14 @@ export class BlogController
             next(error);
         }
     }
+
+    static async listUserBlogs(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const result = await BlogService.listUserBlogs(req.user.id, req.query);
+            res.json({ success: true, ...result });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

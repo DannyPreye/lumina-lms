@@ -6,9 +6,10 @@ const router = Router();
 
 // Public routes
 router.get('/', CourseController.list);
+router.get('/instructor/my-courses', protect, authorize('instructor', 'admin'), CourseController.listInstructorCourses);
 router.get('/category/:categoryId', CourseController.getCoursesByCategory);
-router.get('/:slug', CourseController.getCourse);
 router.get('/:courseId/structure', CourseController.getStructure);
+router.get('/:slug', CourseController.getCourse);
 
 // Protected instructor routes
 router.post(

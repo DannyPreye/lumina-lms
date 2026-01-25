@@ -48,7 +48,7 @@ export class AssetService
     /**
      * List user assets with filters and pagination
      */
-    static async listAssets(userId: string, query: any)
+    static async listAssets(userId: string, query: any, isAdmin: boolean)
     {
         const {
             page = 1,
@@ -58,8 +58,9 @@ export class AssetService
             search
         } = query;
 
-        const filter: any = { userId };
 
+        const filter: any = {};
+        if (!isAdmin) filter.userId = userId;
         if (folder) filter.folder = { $regex: folder, $options: 'i' };
         if (type) filter.fileType = type;
         if (search) {
@@ -88,9 +89,12 @@ export class AssetService
     /**
      * Delete an asset from Cloudinary and DB
      */
-    static async deleteAsset(userId: string, assetId: string)
+    static async deleteAsset(userId: string, assetId: string, isAdmin: boolean)
     {
-        const asset = await Asset.findOne({ _id: assetId, userId });
+
+        const asset = isAdmin
+            ? await Asset.findOne({ _id: assetId })
+            : await Asset.findOne({ _id: assetId, userId });
         if (!asset) throw createError(404, 'Asset not found');
 
         try {
@@ -108,8 +112,12 @@ export class AssetService
     /**
      * Get unique folders used by the user
      */
-    static async getUserFolders(userId: string)
+    static async getUserFolders(userId: string, isAdmin: boolean)
     {
-        return await Asset.distinct('folder', { userId });
+        if (isAdmin) {
+            return await Asset.distinct('folder');
+        } else {
+            return await Asset.distinct('folder', { userId });
+        }
     }
 }

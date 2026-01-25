@@ -1,3 +1,4 @@
+// ...existing imports
 import swaggerJSDoc from 'swagger-jsdoc';
 import { OpenAPIV3 } from 'openapi-types';
 
@@ -18,6 +19,62 @@ const definition: OpenAPIV3.Document = {
             }
         },
         schemas: {
+            // --- DASHBOARD SCHEMAS ---
+            DashboardStudentResponse: {
+                type: 'object',
+                properties: {
+                    profile: { $ref: '#/components/schemas/User' },
+                    enrollments: { type: 'array', items: { $ref: '#/components/schemas/Enrollment' } },
+                    points: { $ref: '#/components/schemas/UserPoints' }
+                }
+            },
+            DashboardInstructorResponse: {
+                type: 'object',
+                properties: {
+                    courseStats: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                courseId: { type: 'string' },
+                                courseName: { type: 'string' },
+                                students: { type: 'number' },
+                                completionRate: { type: 'number' },
+                                avgRating: { type: 'number' },
+                                views: { type: 'number' }
+                            }
+                        }
+                    }
+                }
+            },
+            DashboardAdminResponse: {
+                type: 'object',
+                properties: {
+                    totalUsers: { type: 'number' },
+                    certificatesIssued: { type: 'number' },
+                    activeCategories: { type: 'number' },
+                    announcements: { type: 'number' },
+                    recentActivity: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/Activity' }
+                    }
+                }
+            },
+            Activity: {
+                type: 'object',
+                properties: {
+                    _id: { type: 'string' },
+                    type: { type: 'string', description: 'Activity type (e.g. user_registered, certificate_issued)' },
+                    user: {
+                        oneOf: [
+                            { $ref: '#/components/schemas/User' },
+                            { type: 'string' }
+                        ]
+                    },
+                    meta: { type: 'object', additionalProperties: true },
+                    createdAt: { type: 'string', format: 'date-time' }
+                }
+            },
             // --- CORE SCHEMAS ---
             User: {
                 type: 'object',
@@ -631,6 +688,84 @@ const definition: OpenAPIV3.Document = {
         // ==========================================
         // AUTH MODULE
         // ==========================================
+        // DASHBOARD MODULE
+        // ==========================================
+        '/dashboard/student': {
+            get: {
+                tags: [ 'Student' ],
+                summary: 'Get student dashboard',
+                description: 'Returns dashboard data for the authenticated student.',
+                security: [ { bearerAuth: [] } ],
+                responses: {
+                    200: {
+                        description: 'Student dashboard data',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        success: { type: 'boolean' },
+                                        data: { $ref: '#/components/schemas/DashboardStudentResponse' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: { description: 'Unauthorized' }
+                }
+            }
+        },
+        '/dashboard/instructor': {
+            get: {
+                tags: [ 'Instructor' ],
+                summary: 'Get instructor dashboard',
+                description: 'Returns dashboard data for the authenticated instructor.',
+                security: [ { bearerAuth: [] } ],
+                responses: {
+                    200: {
+                        description: 'Instructor dashboard data',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        success: { type: 'boolean' },
+                                        data: { $ref: '#/components/schemas/DashboardInstructorResponse' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: { description: 'Unauthorized' }
+                }
+            }
+        },
+        '/dashboard/admin': {
+            get: {
+                tags: [ 'Admin' ],
+                summary: 'Get admin dashboard',
+                description: 'Returns dashboard data for the authenticated admin.',
+                security: [ { bearerAuth: [] } ],
+                responses: {
+                    200: {
+                        description: 'Admin dashboard data',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        success: { type: 'boolean' },
+                                        data: { $ref: '#/components/schemas/DashboardAdminResponse' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: { description: 'Unauthorized' }
+                }
+            }
+        },
+        // ==========================================
         '/auth/register': {
             post: {
                 tags: [ 'Public' ],
@@ -648,7 +783,8 @@ const definition: OpenAPIV3.Document = {
                                     password: { type: 'string', minLength: 8 },
                                     firstName: { type: 'string' },
                                     lastName: { type: 'string' },
-                                    displayName: { type: 'string' }
+                                    displayName: { type: 'string' },
+                                    roles: { type: 'array', items: { type: 'string', } }
                                 }
                             }
                         }
@@ -1082,6 +1218,44 @@ const definition: OpenAPIV3.Document = {
                 responses: { 201: { description: 'Course created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Course' } } } } }
             }
         },
+        '/courses/instructor/my-courses': {
+            get: {
+                tags: [ 'Instructor' ],
+                summary: 'List instructor courses',
+                description: 'Returns a paginated list of courses created by the authenticated instructor. Supports filtering by category, level, pricing type, and search.',
+                security: [ { bearerAuth: [] } ],
+                parameters: [
+                    { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+                    { name: 'limit', in: 'query', schema: { type: 'integer', default: 10 } },
+                    { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Category or subcategory ID' },
+                    { name: 'level', in: 'query', schema: { type: 'string', enum: [ 'beginner', 'intermediate', 'advanced', 'all_levels' ] } },
+                    { name: 'pricingType', in: 'query', schema: { type: 'string', enum: [ 'free', 'paid', 'subscription' ] } },
+                    { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Keyword search in title and description' },
+                    { name: 'sort', in: 'query', schema: { type: 'string', default: '-createdAt' }, description: 'Field to sort by (prefix with - for descending)' }
+                ],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        success: { type: 'boolean' },
+                                        courses: { type: 'array', items: { $ref: '#/components/schemas/Course' } },
+                                        total: { type: 'integer' },
+                                        page: { type: 'integer' },
+                                        pages: { type: 'integer' }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: { description: 'Unauthorized' }
+                }
+            }
+        },
+
         '/courses/{slug}': {
             get: {
                 tags: [ 'Public' ],
@@ -2354,6 +2528,41 @@ const definition: OpenAPIV3.Document = {
                 responses: { 201: { description: 'Post created' } }
             }
         },
+        '/blog/my': {
+            get: {
+                tags: [ 'Instructor' ],
+                summary: 'List my blog posts',
+                description: 'Returns a paginated list of blog posts created by the authenticated instructor or admin. Supports filtering by category, tag, status, and search.',
+                security: [ { bearerAuth: [] } ],
+                parameters: [
+                    { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+                    { name: 'limit', in: 'query', schema: { type: 'integer', default: 10 } },
+                    { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Category ID' },
+                    { name: 'tag', in: 'query', schema: { type: 'string' }, description: 'Filter by tag' },
+                    { name: 'status', in: 'query', schema: { type: 'string', enum: [ 'draft', 'published' ] }, description: 'Filter by post status' },
+                    { name: 'search', in: 'query', schema: { type: 'string' }, description: 'Text search in title and content' }
+                ],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        success: { type: 'boolean' },
+                                        posts: { type: 'array', items: { $ref: '#/components/schemas/BlogPost' } },
+                                        total: { type: 'integer' },
+                                        page: { type: 'integer' },
+                                        pages: { type: 'integer' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         '/blog/{slug}': {
             get: {
                 tags: [ 'Public' ],
@@ -2390,7 +2599,7 @@ const definition: OpenAPIV3.Document = {
             post: {
                 tags: [ 'Assets' ],
                 summary: 'Upload a file',
-                description: 'Uploads a file to Cloudinary and saves the metadata. Supports folder-based organization.',
+                description: 'Uploads a file to Cloudinary and saves the metadata. Supports folder-based organization. Non-admin users can only upload to their own folders; admins can upload to any folder.',
                 security: [ { bearerAuth: [] } ],
                 requestBody: {
                     required: true,
@@ -2417,7 +2626,8 @@ const definition: OpenAPIV3.Document = {
         '/assets': {
             get: {
                 tags: [ 'Assets' ],
-                summary: 'List my assets',
+                summary: 'List assets',
+                description: 'Admins can list all assets. Non-admin users only see assets they created.',
                 security: [ { bearerAuth: [] } ],
                 parameters: [
                     { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
@@ -2451,6 +2661,7 @@ const definition: OpenAPIV3.Document = {
             get: {
                 tags: [ 'Assets' ],
                 summary: 'Get unique asset folders',
+                description: 'Admins see all folders. Non-admin users only see folders they have created assets in.',
                 security: [ { bearerAuth: [] } ],
                 responses: {
                     200: {

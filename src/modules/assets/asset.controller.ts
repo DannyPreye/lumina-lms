@@ -21,7 +21,8 @@ export class AssetController
     static async list(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            const result = await AssetService.listAssets(req.user.id, req.query);
+            const isAdmin = req.user.roles?.includes('admin');
+            const result = await AssetService.listAssets(req.user.id, req.query, isAdmin);
             res.json({ success: true, ...result });
         } catch (error) {
             next(error);
@@ -31,7 +32,8 @@ export class AssetController
     static async delete(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            await AssetService.deleteAsset(req.user.id, req.params.id as string);
+            const isAdmin = req.user.roles?.includes('admin');
+            await AssetService.deleteAsset(req.user.id, req.params.id as string, isAdmin);
             res.json({ success: true, message: 'Asset deleted successfully' });
         } catch (error) {
             next(error);
@@ -41,7 +43,8 @@ export class AssetController
     static async getFolders(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            const folders = await AssetService.getUserFolders(req.user.id);
+            const isAdmin = req.user.roles?.includes('admin');
+            const folders = await AssetService.getUserFolders(req.user.id, isAdmin);
             res.json({ success: true, data: folders });
         } catch (error) {
             next(error);

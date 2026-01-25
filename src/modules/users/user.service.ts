@@ -28,9 +28,23 @@ export class UserService
 
     static async updateProfile(userId: string, updateData: any)
     {
+
+
+        const { profile, ...rest } = updateData;
+
+        const getUser = await User.findById(userId);
+
         const user = await User.findByIdAndUpdate(
             userId,
-            { $set: updateData },
+            {
+                $set: {
+                    profile: {
+                        ...getUser?.profile,
+                        ...profile
+                    },
+                    ...rest
+                }
+            },
             { new: true, runValidators: true }
         );
         if (!user) {

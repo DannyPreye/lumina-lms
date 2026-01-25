@@ -29,6 +29,7 @@ export class UserController
                 data: user,
             });
         } catch (error) {
+            console.log(error);
             next(error);
         }
     }

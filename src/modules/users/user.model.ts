@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 export interface IUser extends Document
 {
     email: string;
-    passwordHash: string;
+    passwordHash?: string;
     roles: ('student' | 'instructor' | 'admin' | 'teaching_assistant')[];
     profile: {
         firstName: string;
@@ -42,6 +42,7 @@ export interface IUser extends Document
     verificationToken?: string;
     verificationTokenExpires?: Date;
     passwordResetToken?: string;
+    signInMethod: 'email' | 'google';
     passwordResetExpires?: Date;
     lastLogin?: Date;
     comparePassword(password: string): Promise<boolean>;
@@ -53,7 +54,7 @@ export interface IUser extends Document
 const userSchema = new Schema<IUser>(
     {
         email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-        passwordHash: { type: String, required: true, select: false },
+        passwordHash: { type: String, required: false, select: false },
         roles: {
             type: [ String ],
             enum: [ 'student', 'instructor', 'admin', 'teaching_assistant' ],
@@ -96,6 +97,7 @@ const userSchema = new Schema<IUser>(
             default: 'active',
         },
         emailVerified: { type: Boolean, default: false },
+        signInMethod: { type: String, enum: [ 'email', 'google' ], default: 'email' },
         verificationToken: String,
         verificationTokenExpires: Date,
         passwordResetToken: String,
@@ -114,6 +116,7 @@ userSchema.pre('save', async function ()
     if (!this.isModified('passwordHash')) return;
     try {
         const salt = await bcrypt.genSalt(10);
+        if (!this.passwordHash) return;
         this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
     } catch (error) {
         throw error;

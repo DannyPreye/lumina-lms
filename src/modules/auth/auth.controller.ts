@@ -10,7 +10,7 @@ export class AuthController
     static async register(req: Request, res: Response, next: NextFunction)
     {
         try {
-            const { email, password, firstName, lastName, displayName } = req.body;
+            const { email, password, firstName, lastName, displayName, roles } = req.body;
 
             const verificationToken = generateRandomToken();
             const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
@@ -20,7 +20,8 @@ export class AuthController
                 passwordHash: password,
                 profile: { firstName, lastName, displayName },
                 verificationToken: hashToken(verificationToken),
-                verificationTokenExpires
+                verificationTokenExpires,
+                roles,
             });
 
             // In a real app, send verification email here
@@ -143,6 +144,8 @@ export class AuthController
                 success: true,
                 accessToken,
                 user: { id: user._id, email: user.email, roles: user.roles },
+                refreshToken,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             });
         } catch (error) {
             next(error);

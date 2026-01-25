@@ -18,14 +18,18 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
             token = req.cookies.accessToken;
         }
 
+        console.log('Extracted Token:', token);
+
         if (!token) {
             return next(createError(401, 'Not authorized, no token provided'));
         }
 
         const decoded = verifyAccessToken(token) as { id: string; roles: string[]; };
+        console.log('Decoded Token:', decoded);
         req.user = decoded;
         next();
     } catch (error) {
+        console.log('Authentication Error:', error);
         next(createError(401, 'Not authorized, token failed'));
     }
 };

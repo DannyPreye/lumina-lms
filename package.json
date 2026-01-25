@@ -10,7 +10,8 @@
         "format": "prettier --write \"**/*.{ts,js,json,md,yml}\"",
         "test": "jest --runInBand",
         "test_watch": "jest --watch",
-        "prestart": "npm run build"
+        "prestart": "npm run build",
+        "seed:categories": "ts-node src/modules/system-admin/seed-categories.ts"
     },
     "keywords": [
         "express",

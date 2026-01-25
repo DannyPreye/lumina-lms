@@ -4,6 +4,17 @@ import { AuthRequest } from '../../common/middlewares/auth.middleware';
 
 export class CourseController
 {
+    static async listInstructorCourses(req: import('../../common/middlewares/auth.middleware').AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const instructorId = req.user.id;
+            const result = await CourseService.listInstructorCourses(instructorId, req.query);
+            res.json({ success: true, ...result });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async createCourse(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
