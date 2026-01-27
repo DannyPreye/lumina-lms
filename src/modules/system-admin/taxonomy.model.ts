@@ -25,6 +25,19 @@ const categorySchema = new Schema<ICategory>(
     { timestamps: { createdAt: true, updatedAt: false } }
 );
 
+
+// Virtual for subcategories
+categorySchema.virtual('subcategories', {
+    ref: 'Category',
+    localField: '_id',
+    foreignField: 'parentId',
+    justOne: false
+});
+
+// Ensure virtuals are included in JSON and Object outputs
+categorySchema.set('toObject', { virtuals: true });
+categorySchema.set('toJSON', { virtuals: true });
+
 export const Category = model<ICategory>('Category', categorySchema);
 
 export interface ITag extends Document

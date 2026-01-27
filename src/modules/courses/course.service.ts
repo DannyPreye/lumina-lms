@@ -41,7 +41,10 @@ export class CourseService
 
         const courses = await Course.find(filter)
             .populate('instructorId', 'profile')
+            .populate('category', 'name')
+            .populate('subcategory', 'name')
             .sort(sort as string)
+            .select('-fullDescription -tags -settings -learningObjectives -learningObjectives -certification')
             .skip(skip)
             .limit(parseInt(limit as string));
 
@@ -62,7 +65,8 @@ export class CourseService
 
     static async getCourseBySlug(slug: string)
     {
-        const course = await Course.findOne({ slug, status: 'published' })
+        const decodedSlug = decodeURIComponent(slug);
+        const course = await Course.findOne({ slug: decodedSlug, status: 'published' })
             .populate('instructorId', 'profile')
             .populate('coInstructors', 'profile');
         if (!course) throw createError(404, 'Course not found');
@@ -71,12 +75,24 @@ export class CourseService
 
     static async addModule(courseId: string, moduleData: any)
     {
-        return await Module.create({ ...moduleData, courseId });
+        const module = await Module.create({ ...moduleData, courseId });
+        // Update course metadata: totalModules
+        const totalModules = await Module.countDocuments({ courseId });
+        await Course.findByIdAndUpdate(courseId, {
+            $set: { 'metadata.totalModules': totalModules, 'metadata.lastUpdated': new Date() }
+        });
+        return module;
     }
 
     static async addLesson(courseId: string, moduleId: string, lessonData: any)
     {
-        return await Lesson.create({ ...lessonData, courseId, moduleId });
+        const lesson = await Lesson.create({ ...lessonData, courseId, moduleId });
+        // Update course metadata: totalLessons
+        const totalLessons = await Lesson.countDocuments({ courseId });
+        await Course.findByIdAndUpdate(courseId, {
+            $set: { 'metadata.totalLessons': totalLessons, 'metadata.lastUpdated': new Date() }
+        });
+        return lesson;
     }
 
     static async getCourseStructure(courseId: string)
@@ -84,9 +100,12 @@ export class CourseService
         const modules = await Module.find({ courseId }).sort('order');
         const lessons = await Lesson.find({ courseId }).sort('order');
 
+        console.log('Modules:', modules);
+
         return modules.map(mod => ({
             ...mod.toObject(),
-            lessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString())
+            lessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()),
+            totalLessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()).length
         }));
     }
 
@@ -133,11 +152,18 @@ export class CourseService
             ];
         }
 
+
+        console.log(filter);
+
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const courses = await Course.find(filter)
             .populate('instructorId', 'profile')
+            .populate('instructorId', 'profile')
+            .populate('category', 'name')
+            .populate('subcategory', 'name')
             .sort(sort as string)
+            .select('-fullDescription -tags -settings -learningObjectives -learningObjectives -certification')
             .skip(skip)
             .limit(parseInt(limit as string));
 

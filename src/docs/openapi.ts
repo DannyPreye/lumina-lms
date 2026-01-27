@@ -126,8 +126,8 @@ const definition: OpenAPIV3.Document = {
                     fullDescription: { type: 'string' },
                     instructorId: { type: 'string' },
                     coInstructors: { type: 'array', items: { type: 'string' } },
-                    category: { type: 'string', description: 'Reference to a Category ID' },
-                    subcategory: { type: 'string', description: 'Reference to a Category ID' },
+                    category: { $ref: '#/components/schemas/Category', description: 'Category object (populated with name)' },
+                    subcategory: { $ref: '#/components/schemas/Category', description: 'Subcategory object (populated with name)' },
                     tags: { type: 'array', items: { type: 'string' } },
                     thumbnail: { type: 'string' },
                     coverImage: { type: 'string' },
@@ -522,7 +522,12 @@ const definition: OpenAPIV3.Document = {
                     icon: { type: 'string' },
                     parentId: { type: 'string' },
                     order: { type: 'number' },
-                    isActive: { type: 'boolean' }
+                    isActive: { type: 'boolean' },
+                    subcategories: {
+                        type: 'array',
+                        items: { $ref: '#/components/schemas/Category' },
+                        description: 'List of subcategories (populated if fetching parent categories)'
+                    }
                 }
             },
             Review: {
@@ -1190,6 +1195,8 @@ const definition: OpenAPIV3.Document = {
                                     shortDescription: { type: 'string', example: 'Master modern React patterns and performance optimization.' },
                                     fullDescription: { type: 'string', example: 'In this comprehensive course, you will learn how to build scalable applications using React, Redux, and modern hooks. We cover architectural patterns, performance bottlenecks, and automated testing.' },
                                     category: { type: 'string', example: 'Development' },
+                                    coverImage: { type: 'string', example: 'https://example.com/images/course-cover.jpg' },
+                                    previewVideo: { type: 'string', example: 'https://example.com/videos/course-preview.mp4' },
                                     subcategory: { type: 'string', example: 'Frontend' },
                                     level: { type: 'string', enum: [ 'beginner', 'intermediate', 'advanced', 'all_levels' ], example: 'advanced' },
                                     tags: { type: 'array', items: { type: 'string' }, example: [ 'React', 'JavaScript', 'Web Development' ] },
@@ -2243,8 +2250,31 @@ const definition: OpenAPIV3.Document = {
         '/system-admin/categories': {
             get: {
                 tags: [ 'Public' ],
-                summary: 'List taxonomy categories',
-                description: 'Returns all active course categories used for classification.',
+                summary: 'List taxonomy categories and subcategories',
+                description: 'Returns active course categories. Supports filtering for parent categories, subcategories, or fetching subcategories of a specific parent. If no parameters are provided, returns all parent categories with their subcategories populated. Query params:\n- parentId: string (fetch subcategories of this parent)\n- subOnly: boolean (fetch only subcategories)\n- parentOnly: boolean (fetch only parent categories)',
+                parameters: [
+                    {
+                        name: 'parentId',
+                        in: 'query',
+                        schema: { type: 'string' },
+                        required: false,
+                        description: 'If provided, fetches subcategories of the given parent category ID.'
+                    },
+                    {
+                        name: 'subOnly',
+                        in: 'query',
+                        schema: { type: 'boolean' },
+                        required: false,
+                        description: 'If true, returns only subcategories (categories with a parent).'
+                    },
+                    {
+                        name: 'parentOnly',
+                        in: 'query',
+                        schema: { type: 'boolean' },
+                        required: false,
+                        description: 'If true, returns only parent categories (categories with no parent).'
+                    }
+                ],
                 responses: {
                     200: {
                         description: 'OK',
@@ -2269,7 +2299,22 @@ const definition: OpenAPIV3.Document = {
                 security: [ { bearerAuth: [] } ],
                 requestBody: {
                     required: true,
-                    content: { 'application/json': { schema: { type: 'object', required: [ 'name', 'slug' ], properties: { name: { type: 'string' }, slug: { type: 'string' }, description: { type: 'string' }, icon: { type: 'string' }, parentId: { type: 'string' }, order: { type: 'number' } } } } }
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: [ 'name', 'slug' ],
+                                properties: {
+                                    name: { type: 'string' },
+                                    slug: { type: 'string' },
+                                    description: { type: 'string' },
+                                    icon: { type: 'string' },
+                                    parentId: { type: 'string' },
+                                    order: { type: 'number' }
+                                }
+                            }
+                        }
+                    }
                 },
                 responses: {
                     201: {

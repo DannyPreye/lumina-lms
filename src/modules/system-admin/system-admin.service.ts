@@ -16,9 +16,42 @@ export class SystemAdminService
         return await Category.create({ ...data, slug });
     }
 
-    static async getCategories()
+    /**
+     * Fetch categories with flexible options:
+     * - If no params: returns all parent categories with their subcategories populated.
+     * - If parentId is provided: returns subcategories of the given parent.
+     * - If subOnly is true: returns only subcategories (categories with a parent).
+     * - If parentOnly is true: returns only parent categories (categories with no parent).
+     *
+     * @param options Optional filter options:
+     *   - parentId: string (fetch subcategories of this parent)
+     *   - subOnly: boolean (fetch only subcategories)
+     *   - parentOnly: boolean (fetch only parent categories)
+     */
+    static async getCategories(options: { parentId?: string, subOnly?: boolean, parentOnly?: boolean; } = {})
     {
-        return await Category.find({ isActive: true }).sort('order');
+        const { parentId, subOnly, parentOnly } = options;
+        const filter: any = { isActive: true };
+
+        console.log(subOnly, parentOnly);
+
+        if (parentId) {
+            filter.parentId = parentId;
+        } else if (subOnly) {
+            filter.parentId = { $exists: true, $ne: null };
+        } else if (parentOnly) {
+            filter.parentId = { $exists: false };
+        }
+
+        console.log(filter);
+        // If fetching parent categories (default), populate subcategories
+        if (!parentId && !subOnly) {
+            return await Category.find(filter)
+                .sort('order')
+                .populate({ path: 'subcategories', match: { isActive: true }, options: { sort: { order: 1 } } });
+        }
+        // Otherwise, just return the filtered categories
+        return await Category.find(filter).sort('order');
     }
 
     // Reviews

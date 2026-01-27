@@ -18,7 +18,16 @@ export class SystemAdminController
     static async listCategories(req: Request, res: Response, next: NextFunction)
     {
         try {
-            const categories = await SystemAdminService.getCategories();
+            const options = req.query;
+
+            const convertedOptions: { parentId?: string; subOnly?: boolean; parentOnly?: boolean; } = {
+                parentId: options.parentId as string | undefined,
+                subOnly: options.subOnly === 'true' ? true : options.subOnly === 'false' ? false : undefined,
+                parentOnly: options.parentOnly === 'true' ? true : options.parentOnly === 'false' ? false : undefined,
+            };
+
+
+            const categories = await SystemAdminService.getCategories(convertedOptions);
             res.json({ success: true, data: categories });
         } catch (error) {
             next(error);
