@@ -7,7 +7,10 @@ export class CertificateController
     static async createTemplate(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            const template = await CertificateService.createTemplate(req.body);
+            // Ensure the instructor field is set to the current user (if not provided/overridable)
+            // Assuming the creator is the instructor.
+            const templateData = { ...req.body, instructor: req.user.id };
+            const template = await CertificateService.createTemplate(templateData);
             res.status(201).json({ success: true, data: template });
         } catch (error) {
             next(error);
@@ -27,8 +30,8 @@ export class CertificateController
     static async issue(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            const { userId, courseId, templateId } = req.body;
-            const certificate = await CertificateService.generateCertificate(userId, courseId, templateId);
+            const { studentId, courseId, templateId } = req.body;
+            const certificate = await CertificateService.generateCertificate(studentId, courseId, templateId);
             res.status(201).json({ success: true, data: certificate });
         } catch (error) {
             next(error);
@@ -48,8 +51,8 @@ export class CertificateController
     static async verify(req: Request, res: Response, next: NextFunction)
     {
         try {
-            const credentialId = req.params.credentialId as string;
-            const certificate = await CertificateService.verifyCertificate(credentialId);
+            const certificateId = req.params.certificateId as string;
+            const certificate = await CertificateService.verifyCertificate(certificateId);
             res.json({ success: true, data: certificate });
         } catch (error) {
             next(error);

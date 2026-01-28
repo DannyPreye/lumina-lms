@@ -1,4 +1,4 @@
-import { Certificate, ICertificate } from './certificate.model';
+import { Certificate } from './certificate.model';
 import { CertificateTemplate } from './certificate-template.model';
 import { User } from '../users/user.model';
 import { Course } from '../courses/course.model';
@@ -17,69 +17,71 @@ export class CertificateService
         return await CertificateTemplate.find();
     }
 
-    static async generateCertificate(userId: string, courseId: string, templateId?: string)
+    static async getTemplateById(id: string)
     {
-        const user = await User.findById(userId);
+        return await CertificateTemplate.findById(id);
+    }
+
+    static async generateCertificate(studentId: string, courseId: string, templateId: string)
+    {
+        const student = await User.findById(studentId);
         const course = await Course.findById(courseId).populate('instructorId');
 
-        if (!user || !course) throw createError(404, 'User or Course not found');
+        if (!student || !course) throw createError(404, 'Student or Course not found');
 
-        let template;
-        if (templateId) {
-            template = await CertificateTemplate.findById(templateId);
-        } else {
-            template = await CertificateTemplate.findOne({ isDefault: true });
-        }
-
+        const template = await CertificateTemplate.findById(templateId);
         if (!template) throw createError(404, 'Certificate template not found');
 
-        const certificateNumber = `CERT-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-        const credentialId = uuidv4();
+        // Generate a unique certificate ID (e.g. CERT-YYYY-UUID)
+        const certificateId = `CERT-${new Date().getFullYear()}-${uuidv4().split('-')[ 0 ].toUpperCase()}`;
 
-        // In a real app, you'd call a PDF generation service here
-        // For now, we simulate the URL
-        const certificateUrl = `https://cdn.lumina.com/certificates/${credentialId}.pdf`;
-        const verificationUrl = `https://lumina.com/verify/${credentialId}`;
+        // Flatten instructor name safely
+        const instructorName = (course as any).instructorId ?
+            `${(course as any).instructorId.firstName} ${(course as any).instructorId.lastName}` :
+            'Instructor';
 
         return await Certificate.create({
-            userId,
-            courseId,
-            templateId: template._id,
-            certificateNumber,
-            credentialId,
-            recipientName: `${user.profile.firstName} ${user.profile.lastName}`,
-            courseName: course.title,
-            instructorName: 'Lumina Instructor', // Simplified for demo
-            issueDate: new Date(),
-            completionDate: new Date(),
-            certificateUrl,
-            verificationUrl,
+            certificateId,
+            template: template._id,
+            student: studentId,
+            course: courseId,
             metadata: {
-                hoursCompleted: course.metadata.estimatedHours,
-                skillsAcquired: course.tags || [],
-                finalScore: 100 // Should come from enrollment/assessments
+                studentName: `${student.profile?.firstName} ${student.profile?.lastName}`,
+                courseName: course.title,
+                instructorName: instructorName,
+                completionDate: new Date(),
+                grade: 'Completed'
             },
-            status: 'active'
+            issueDate: new Date(),
+            isValid: true
         });
     }
 
-    static async getUserCertificates(userId: string)
+    static async getUserCertificates(studentId: string)
     {
-        return await Certificate.find({ userId }).populate('courseId', 'title thumbnail');
+        return await Certificate.find({ student: studentId })
+            .populate('course', 'title thumbnail')
+            .populate('template', 'name');
     }
 
-    static async verifyCertificate(credentialId: string)
+    static async verifyCertificate(certificateId: string)
     {
-        const certificate = await Certificate.findOne({ credentialId, status: 'active' });
+        const certificate = await Certificate.findOne({ certificateId, isValid: true })
+            .populate('student', 'profile')
+            .populate('course', 'title')
+            .populate('template');
+
         if (!certificate) throw createError(404, 'Valid certificate not found');
         return certificate;
     }
 
-    static async revokeCertificate(certificateId: string, reason: string)
+    static async revokeCertificate(id: string, reason: string)
     {
+        // Note: The schema only has isValid boolean, we might want to store revocation reason in metadata or separate field if needed.
+        // However strictly following the schema provided:
         return await Certificate.findByIdAndUpdate(
-            certificateId,
-            { status: 'revoked', revokedAt: new Date(), revokeReason: reason },
+            id,
+            { isValid: false }, // schema doesn't have revocation reason, just boolean
             { new: true }
         );
     }

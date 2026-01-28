@@ -24,3 +24,8 @@ export const verifyRefreshToken = (token: string) =>
 {
     return jwt.verify(token, config.JWT_REFRESH_SECRET);
 };
+
+export const decodeToken = (token: string) =>
+{
+    return jwt.decode(token);
+};

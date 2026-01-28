@@ -5,7 +5,7 @@ import { protect, authorize } from '../../common/middlewares/auth.middleware';
 const router = Router();
 
 // Public verification
-router.get('/verify/:credentialId', CertificateController.verify as any);
+router.get('/verify/:certificateId', CertificateController.verify as any);
 
 // Student: View own certificates
 router.get('/my-certificates', protect, CertificateController.getMyCertificates as any);
@@ -14,7 +14,7 @@ router.get('/my-certificates', protect, CertificateController.getMyCertificates 
 router.post(
     '/templates',
     protect,
-    authorize('admin'),
+    authorize('admin', 'instructor'),
     CertificateController.createTemplate as any
 );
 
@@ -35,7 +35,7 @@ router.post(
 router.patch(
     '/:id/revoke',
     protect,
-    authorize('admin'),
+    authorize('admin', 'instructor'), // Allowing instructors to revoke too if needed
     CertificateController.revoke as any
 );
 

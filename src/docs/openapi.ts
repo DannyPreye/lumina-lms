@@ -10,7 +10,7 @@ const definition: OpenAPIV3.Document = {
     description:
       "Complete API documentation for Lumina, a full-featured Learning Management System. Categorized by User Roles (Public, Student, Instructor, Admin).",
   },
-  servers: [{ url: "http://localhost:5000/api/v1" }],
+  servers: [ { url: "http://localhost:5000/api/v1" } ],
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -74,7 +74,7 @@ const definition: OpenAPIV3.Document = {
               "Activity type (e.g. user_registered, certificate_issued)",
           },
           user: {
-            oneOf: [{ $ref: "#/components/schemas/User" }, { type: "string" }],
+            oneOf: [ { $ref: "#/components/schemas/User" }, { type: "string" } ],
           },
           meta: { type: "object", additionalProperties: true },
           createdAt: { type: "string", format: "date-time" },
@@ -90,7 +90,7 @@ const definition: OpenAPIV3.Document = {
             type: "array",
             items: {
               type: "string",
-              enum: ["student", "instructor", "admin", "teaching_assistant"],
+              enum: [ "student", "instructor", "admin", "teaching_assistant" ],
             },
           },
           profile: {
@@ -122,7 +122,7 @@ const definition: OpenAPIV3.Document = {
           },
           status: {
             type: "string",
-            enum: ["active", "suspended", "deactivated"],
+            enum: [ "active", "suspended", "deactivated" ],
           },
           emailVerified: { type: "boolean" },
           lastLogin: { type: "string", format: "date-time" },
@@ -181,13 +181,13 @@ const definition: OpenAPIV3.Document = {
           previewVideo: { type: "string" },
           level: {
             type: "string",
-            enum: ["beginner", "intermediate", "advanced", "all_levels"],
+            enum: [ "beginner", "intermediate", "advanced", "all_levels" ],
           },
           language: { type: "string" },
           pricing: {
             type: "object",
             properties: {
-              type: { type: "string", enum: ["free", "paid", "subscription"] },
+              type: { type: "string", enum: [ "free", "paid", "subscription" ] },
               amount: { type: "number" },
               currency: { type: "string" },
               discountPrice: { type: "number" },
@@ -217,7 +217,7 @@ const definition: OpenAPIV3.Document = {
             properties: {
               enrollmentType: {
                 type: "string",
-                enum: ["open", "approval_required", "invitation_only"],
+                enum: [ "open", "approval_required", "invitation_only" ],
               },
               maxStudents: { type: "number" },
               allowDiscussions: { type: "boolean" },
@@ -236,7 +236,7 @@ const definition: OpenAPIV3.Document = {
               version: { type: "string" },
             },
           },
-          status: { type: "string", enum: ["draft", "published", "archived"] },
+          status: { type: "string", enum: [ "draft", "published", "archived" ] },
           publishedAt: { type: "string", format: "date-time" },
           createdAt: { type: "string", format: "date-time" },
           updatedAt: { type: "string", format: "date-time" },
@@ -310,11 +310,11 @@ const definition: OpenAPIV3.Document = {
           courseId: { type: "string" },
           enrollmentType: {
             type: "string",
-            enum: ["self", "admin", "invitation", "purchase"],
+            enum: [ "self", "admin", "invitation", "purchase" ],
           },
           status: {
             type: "string",
-            enum: ["active", "completed", "dropped", "expired"],
+            enum: [ "active", "completed", "dropped", "expired" ],
           },
           progress: {
             type: "object",
@@ -330,7 +330,7 @@ const definition: OpenAPIV3.Document = {
                     lessonId: { type: "string" },
                     status: {
                       type: "string",
-                      enum: ["not_started", "in_progress", "completed"],
+                      enum: [ "not_started", "in_progress", "completed" ],
                     },
                     timeSpent: { type: "number" },
                     lastAccessedAt: { type: "string", format: "date-time" },
@@ -372,7 +372,7 @@ const definition: OpenAPIV3.Document = {
           description: { type: "string" },
           type: {
             type: "string",
-            enum: ["practice", "graded", "survey", "final_exam"],
+            enum: [ "practice", "graded", "survey", "final_exam" ],
           },
           settings: {
             type: "object",
@@ -384,7 +384,7 @@ const definition: OpenAPIV3.Document = {
           },
           totalPoints: { type: "number" },
           questionCount: { type: "number" },
-          status: { type: "string", enum: ["draft", "published", "archived"] },
+          status: { type: "string", enum: [ "draft", "published", "archived" ] },
         },
       },
       QuizAttempt: {
@@ -407,7 +407,7 @@ const definition: OpenAPIV3.Document = {
           title: { type: "string" },
           type: {
             type: "string",
-            enum: ["essay", "project", "code", "file_upload"],
+            enum: [ "essay", "project", "code", "file_upload" ],
           },
           dueDate: { type: "string", format: "date-time" },
           totalPoints: { type: "number" },
@@ -418,7 +418,7 @@ const definition: OpenAPIV3.Document = {
         properties: {
           _id: { type: "string" },
           assignmentId: { type: "string" },
-          status: { type: "string", enum: ["submitted", "graded", "returned"] },
+          status: { type: "string", enum: [ "submitted", "graded", "returned" ] },
           grade: {
             type: "object",
             properties: {
@@ -460,7 +460,7 @@ const definition: OpenAPIV3.Document = {
           actionUrl: { type: "string" },
           priority: {
             type: "string",
-            enum: ["low", "normal", "high", "urgent"],
+            enum: [ "low", "normal", "high", "urgent" ],
           },
           channels: {
             type: "object",
@@ -471,7 +471,7 @@ const definition: OpenAPIV3.Document = {
               sms: { type: "boolean" },
             },
           },
-          status: { type: "string", enum: ["unread", "read", "archived"] },
+          status: { type: "string", enum: [ "unread", "read", "archived" ] },
           readAt: { type: "string", format: "date-time" },
           createdAt: { type: "string", format: "date-time" },
         },
@@ -483,7 +483,7 @@ const definition: OpenAPIV3.Document = {
           name: { type: "string" },
           description: { type: "string" },
           icon: { type: "string" },
-          type: { type: "string", enum: ["badge", "trophy", "certificate"] },
+          type: { type: "string", enum: [ "badge", "trophy", "certificate" ] },
           category: {
             type: "string",
             enum: [
@@ -496,7 +496,7 @@ const definition: OpenAPIV3.Document = {
           },
           rarity: {
             type: "string",
-            enum: ["common", "rare", "epic", "legendary"],
+            enum: [ "common", "rare", "epic", "legendary" ],
           },
           points: { type: "number" },
           criteria: {
@@ -556,7 +556,7 @@ const definition: OpenAPIV3.Document = {
         type: "object",
         properties: {
           courseId: { type: "string" },
-          period: { type: "string", enum: ["daily", "weekly", "monthly"] },
+          period: { type: "string", enum: [ "daily", "weekly", "monthly" ] },
           startDate: { type: "string", format: "date-time" },
           endDate: { type: "string", format: "date-time" },
           enrollment: {
@@ -633,7 +633,7 @@ const definition: OpenAPIV3.Document = {
           explanation: { type: "string" },
           points: { type: "number" },
           order: { type: "number" },
-          difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
+          difficulty: { type: "string", enum: [ "easy", "medium", "hard" ] },
           options: {
             type: "array",
             items: {
@@ -678,7 +678,7 @@ const definition: OpenAPIV3.Document = {
           review: { type: "string" },
           status: {
             type: "string",
-            enum: ["pending", "approved", "flagged", "removed"],
+            enum: [ "pending", "approved", "flagged", "removed" ],
           },
         },
       },
@@ -692,11 +692,11 @@ const definition: OpenAPIV3.Document = {
           content: { type: "string" },
           type: {
             type: "string",
-            enum: ["info", "warning", "urgent", "success"],
+            enum: [ "info", "warning", "urgent", "success" ],
           },
           targetAudience: {
             type: "string",
-            enum: ["all", "students", "instructors"],
+            enum: [ "all", "students", "instructors" ],
           },
           isPinned: { type: "boolean" },
         },
@@ -708,7 +708,7 @@ const definition: OpenAPIV3.Document = {
           value: { type: "object" },
           category: {
             type: "string",
-            enum: ["general", "email", "payment", "ai", "security"],
+            enum: [ "general", "email", "payment", "ai", "security" ],
           },
         },
       },
@@ -724,7 +724,7 @@ const definition: OpenAPIV3.Document = {
           recipientName: { type: "string" },
           courseName: { type: "string" },
           issueDate: { type: "string", format: "date-time" },
-          status: { type: "string", enum: ["active", "revoked"] },
+          status: { type: "string", enum: [ "active", "revoked" ] },
           certificateUrl: { type: "string" },
           verificationUrl: { type: "string" },
         },
@@ -738,7 +738,7 @@ const definition: OpenAPIV3.Document = {
           design: {
             type: "object",
             properties: {
-              layout: { type: "string", enum: ["portrait", "landscape"] },
+              layout: { type: "string", enum: [ "portrait", "landscape" ] },
               templateUrl: { type: "string" },
             },
           },
@@ -763,7 +763,7 @@ const definition: OpenAPIV3.Document = {
           _id: { type: "string" },
           courseId: { type: "string" },
           lessonId: { type: "string" },
-          type: { type: "string", enum: ["forum", "q_and_a", "announcement"] },
+          type: { type: "string", enum: [ "forum", "q_and_a", "announcement" ] },
           title: { type: "string" },
           body: { type: "string" },
           authorId: { type: "string" },
@@ -820,7 +820,7 @@ const definition: OpenAPIV3.Document = {
           categoryId: { type: "string" },
           tags: { type: "array", items: { type: "string" } },
           featuredImage: { type: "string" },
-          status: { type: "string", enum: ["draft", "published", "archived"] },
+          status: { type: "string", enum: [ "draft", "published", "archived" ] },
           views: { type: "number" },
           readingTime: { type: "number" },
           publishedAt: { type: "string", format: "date-time" },
@@ -881,14 +881,14 @@ const definition: OpenAPIV3.Document = {
           },
           platform: {
             type: "string",
-            enum: ["zoom", "google_meet", "teams", "custom"],
+            enum: [ "zoom", "google_meet", "teams", "custom" ],
           },
           meetingUrl: { type: "string" },
           scheduledStart: { type: "string", format: "date-time" },
           scheduledEnd: { type: "string", format: "date-time" },
           status: {
             type: "string",
-            enum: ["scheduled", "ongoing", "completed", "cancelled"],
+            enum: [ "scheduled", "ongoing", "completed", "cancelled" ],
           },
           createdAt: { type: "string", format: "date-time" },
           updatedAt: { type: "string", format: "date-time" },
@@ -904,10 +904,10 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/dashboard/student": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get student dashboard",
         description: "Returns dashboard data for the authenticated student.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "Student dashboard data",
@@ -931,10 +931,10 @@ const definition: OpenAPIV3.Document = {
     },
     "/dashboard/instructor": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Get instructor dashboard",
         description: "Returns dashboard data for the authenticated instructor.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "Instructor dashboard data",
@@ -958,10 +958,10 @@ const definition: OpenAPIV3.Document = {
     },
     "/dashboard/admin": {
       get: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Get admin dashboard",
         description: "Returns dashboard data for the authenticated admin.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "Admin dashboard data",
@@ -986,7 +986,7 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/auth/register": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "User Registration",
         description: "Register a new user and send a verification email.",
         requestBody: {
@@ -1043,7 +1043,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/login": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "User Login",
         description:
           "Authenticate user and return access token. Refresh token is set in an HttpOnly cookie.",
@@ -1053,7 +1053,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["email", "password"],
+                required: [ "email", "password" ],
                 properties: {
                   email: { type: "string", format: "email" },
                   password: { type: "string" },
@@ -1080,6 +1080,8 @@ const definition: OpenAPIV3.Document = {
                         roles: { type: "array", items: { type: "string" } },
                       },
                     },
+                    refreshToken: { type: "string" },
+                    expiresAt: { type: "string", format: "date-time" },
                   },
                 },
               },
@@ -1091,7 +1093,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/logout": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "User Logout",
         description: "Clear the refresh token cookie.",
         responses: {
@@ -1114,7 +1116,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/refresh-token": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Refresh Access Token",
         description:
           "Use the refresh token (from cookie or request body) to get a new access token.",
@@ -1144,6 +1146,7 @@ const definition: OpenAPIV3.Document = {
                   properties: {
                     success: { type: "boolean" },
                     accessToken: { type: "string" },
+                    expiresAt: { type: "string", format: "date-time" },
                   },
                 },
               },
@@ -1155,7 +1158,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/verify-email": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Verify Email",
         description:
           "Verify user email using the token sent during registration.",
@@ -1165,7 +1168,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["token"],
+                required: [ "token" ],
                 properties: { token: { type: "string" } },
               },
             },
@@ -1192,7 +1195,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/forgot-password": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Forgot Password",
         description: "Send a password reset link to the provided email.",
         requestBody: {
@@ -1201,7 +1204,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["email"],
+                required: [ "email" ],
                 properties: { email: { type: "string", format: "email" } },
               },
             },
@@ -1228,7 +1231,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/reset-password": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Reset Password",
         description: "Reset password using the token sent in the reset email.",
         requestBody: {
@@ -1237,7 +1240,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["token", "newPassword"],
+                required: [ "token", "newPassword" ],
                 properties: {
                   token: { type: "string" },
                   newPassword: { type: "string", minLength: 8 },
@@ -1267,7 +1270,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/google": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Google OAuth login",
         description: "Redirects to Google for authentication.",
         responses: { 302: { description: "Redirect to Google" } },
@@ -1275,7 +1278,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/auth/google/callback": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Google OAuth callback",
         description:
           "Callback endpoint for Google OAuth redirection. Returns access token upon successful authentication.",
@@ -1297,6 +1300,7 @@ const definition: OpenAPIV3.Document = {
                         roles: { type: "array", items: { type: "string" } },
                       },
                     },
+                    expiresAt: { type: "string", format: "date-time" },
                   },
                 },
               },
@@ -1312,9 +1316,9 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/users/profile": {
       get: {
-        tags: ["User"],
+        tags: [ "User" ],
         summary: "Get current user profile",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "Profile data retrieved",
@@ -1333,9 +1337,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       patch: {
-        tags: ["User"],
+        tags: [ "User" ],
         summary: "Update current user profile",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -1372,9 +1376,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/users": {
       get: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "List all users (Admin only)",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -1391,7 +1395,7 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["active", "suspended", "deactivated"],
+              enum: [ "active", "suspended", "deactivated" ],
             },
           },
           { name: "role", in: "query", schema: { type: "string" } },
@@ -1422,9 +1426,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/users/{id}": {
       get: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Get user by ID (Admin only)",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -1451,9 +1455,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Delete user (Admin only)",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -1482,9 +1486,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/users/{id}/roles": {
       patch: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Update user roles (Admin only)",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -1499,7 +1503,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["roles"],
+                required: [ "roles" ],
                 properties: {
                   roles: { type: "array", items: { type: "string" } },
                 },
@@ -1528,9 +1532,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/users/{id}/status": {
       patch: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Update user status (Admin only)",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -1545,11 +1549,11 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["status"],
+                required: [ "status" ],
                 properties: {
                   status: {
                     type: "string",
-                    enum: ["active", "suspended", "deactivated"],
+                    enum: [ "active", "suspended", "deactivated" ],
                   },
                 },
               },
@@ -1581,7 +1585,7 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/courses/category/{categoryId}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get courses by category",
         description:
           "Returns all published courses for a specific category or subcategory ID.",
@@ -1616,7 +1620,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "List courses with filters and pagination",
         description:
           "Returns a paginated list of published courses. Supports filtering by category, level, pricing type, and keyword search.",
@@ -1642,13 +1646,13 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["beginner", "intermediate", "advanced", "all_levels"],
+              enum: [ "beginner", "intermediate", "advanced", "all_levels" ],
             },
           },
           {
             name: "pricingType",
             in: "query",
-            schema: { type: "string", enum: ["free", "paid", "subscription"] },
+            schema: { type: "string", enum: [ "free", "paid", "subscription" ] },
           },
           {
             name: "search",
@@ -1687,10 +1691,10 @@ const definition: OpenAPIV3.Document = {
         },
       },
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Create a new course",
         description: "Initialize a course draft with basic info",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -1741,14 +1745,14 @@ const definition: OpenAPIV3.Document = {
                   tags: {
                     type: "array",
                     items: { type: "string" },
-                    example: ["React", "JavaScript", "Web Development"],
+                    example: [ "React", "JavaScript", "Web Development" ],
                   },
                   pricing: {
                     type: "object",
                     properties: {
                       type: {
                         type: "string",
-                        enum: ["free", "paid", "subscription"],
+                        enum: [ "free", "paid", "subscription" ],
                         example: "paid",
                       },
                       amount: { type: "number", example: 49.99 },
@@ -1777,7 +1781,7 @@ const definition: OpenAPIV3.Document = {
                     properties: {
                       enrollmentType: {
                         type: "string",
-                        enum: ["open", "approval_required", "invitation_only"],
+                        enum: [ "open", "approval_required", "invitation_only" ],
                         example: "open",
                       },
                       allowDiscussions: { type: "boolean", example: true },
@@ -1802,11 +1806,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/instructor/my-courses": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "List instructor courses",
         description:
           "Returns a paginated list of courses created by the authenticated instructor. Supports filtering by category, level, pricing type, and search.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -1829,13 +1833,13 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["beginner", "intermediate", "advanced", "all_levels"],
+              enum: [ "beginner", "intermediate", "advanced", "all_levels" ],
             },
           },
           {
             name: "pricingType",
             in: "query",
-            schema: { type: "string", enum: ["free", "paid", "subscription"] },
+            schema: { type: "string", enum: [ "free", "paid", "subscription" ] },
           },
           {
             name: "search",
@@ -1877,11 +1881,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/instructor/my-courses/{courseId}": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Get instructor course by ID",
         description:
           "Returns the full details of a course created by the authenticated instructor.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -1912,7 +1916,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{slug}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get course details by slug",
         parameters: [
           {
@@ -1942,11 +1946,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/status": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update course status",
         description:
           "Change the course status to draft, published, or archived.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -1961,11 +1965,11 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["status"],
+                required: [ "status" ],
                 properties: {
                   status: {
                     type: "string",
-                    enum: ["draft", "published", "archived"],
+                    enum: [ "draft", "published", "archived" ],
                   },
                 },
               },
@@ -1992,9 +1996,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update course details",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2023,9 +2027,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Delete a course",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2054,7 +2058,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/structure": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get course curriculum structure",
         description: "Returns a hierarchical list of modules and their lessons",
         parameters: [
@@ -2088,9 +2092,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/modules": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Add a new module to a course",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2105,7 +2109,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["title", "order"],
+                required: [ "title", "order" ],
                 properties: {
                   title: { type: "string" },
                   order: { type: "number" },
@@ -2128,9 +2132,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/modules/{moduleId}": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update module details",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2165,9 +2169,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Delete a module",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2202,9 +2206,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/modules/{moduleId}/lessons": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Add a new lesson to a module",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2241,9 +2245,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update lesson details",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2284,9 +2288,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Delete a lesson",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2331,17 +2335,17 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/enrollments/enroll": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Enroll in a course",
         description: "Enrolls the authenticated user into a published course.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId"],
+                required: [ "courseId" ],
                 properties: { courseId: { type: "string" } },
               },
             },
@@ -2369,11 +2373,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/enrollments/my-courses": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "List user enrollments",
         description:
           "Returns all courses the authenticated user is enrolled in. Supports filtering by status and pagination.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -2390,7 +2394,7 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["active", "completed", "dropped"],
+              enum: [ "active", "completed", "dropped" ],
             },
           },
           {
@@ -2433,11 +2437,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/enrollments/{courseId}/progress": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get course progress details",
         description:
           "Returns the progress and enrollment details for a specific course.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2467,11 +2471,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/enrollments/{courseId}/complete-lesson": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Mark lesson as completed",
         description:
           "Updates the user progress by marking a specific lesson as complete.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -2486,7 +2490,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["lessonId"],
+                required: [ "lessonId" ],
                 properties: { lessonId: { type: "string" } },
               },
             },
@@ -2517,23 +2521,23 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/assessments/quizzes": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Create a new quiz",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "title"],
+                required: [ "courseId", "title" ],
                 properties: {
                   courseId: { type: "string" },
                   title: { type: "string" },
                   description: { type: "string" },
                   type: {
                     type: "string",
-                    enum: ["practice", "graded", "survey", "final_exam"],
+                    enum: [ "practice", "graded", "survey", "final_exam" ],
                   },
                   settings: {
                     type: "object",
@@ -2568,11 +2572,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/quizzes/{quizId}": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get quiz details",
         description:
           "Returns quiz metadata and questions. Answers are stripped for students.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "quizId",
@@ -2610,9 +2614,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/quizzes/{quizId}/questions": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Add a question to a quiz",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "quizId",
@@ -2649,9 +2653,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/quizzes/{quizId}/publish": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Publish a quiz",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "quizId",
@@ -2680,16 +2684,16 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/attempts/start": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Start a quiz attempt",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["quizId", "courseId"],
+                required: [ "quizId", "courseId" ],
                 properties: {
                   quizId: { type: "string" },
                   courseId: { type: "string" },
@@ -2718,9 +2722,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/attempts/{attemptId}/submit": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Submit quiz answers",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "attemptId",
@@ -2771,16 +2775,16 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/assignments": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Create a new assignment",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "title", "dueDate"],
+                required: [ "courseId", "title", "dueDate" ],
                 properties: {
                   courseId: { type: "string" },
                   title: { type: "string" },
@@ -2819,9 +2823,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/assessments/assignments/{assignmentId}/submit": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Submit an assignment",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "assignmentId",
@@ -2873,24 +2877,24 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/discussions": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Create a discussion thread",
         description:
           "Initializes a new discussion thread in a specific course or lesson.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "title", "body"],
+                required: [ "courseId", "title", "body" ],
                 properties: {
                   courseId: { type: "string" },
                   lessonId: { type: "string" },
                   title: { type: "string" },
                   body: { type: "string" },
-                  type: { type: "string", enum: ["forum", "q_and_a"] },
+                  type: { type: "string", enum: [ "forum", "q_and_a" ] },
                   tags: { type: "array", items: { type: "string" } },
                 },
               },
@@ -2917,7 +2921,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/course/{courseId}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "List course discussions",
         description:
           "Returns a paginated list of discussion threads associated with a specific course. Supports filtering by type, tag, and keyword search.",
@@ -2941,7 +2945,7 @@ const definition: OpenAPIV3.Document = {
           {
             name: "type",
             in: "query",
-            schema: { type: "string", enum: ["forum", "q_and_a"] },
+            schema: { type: "string", enum: [ "forum", "q_and_a" ] },
           },
           {
             name: "tag",
@@ -2960,7 +2964,7 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["newest", "popular"],
+              enum: [ "newest", "popular" ],
               default: "newest",
             },
           },
@@ -2991,7 +2995,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get discussion details",
         description: "Returns a full discussion thread including all replies.",
         parameters: [
@@ -3023,11 +3027,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/replies": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Add a reply to a discussion",
         description:
           "Adds a new reply or nested comment to an existing discussion thread.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3042,7 +3046,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["body"],
+                required: [ "body" ],
                 properties: {
                   body: { type: "string" },
                   parentReplyId: { type: "string" },
@@ -3071,11 +3075,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/upvote": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Upvote a discussion",
         description:
           "Increments the upvote count for a specific discussion thread.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3104,11 +3108,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/accept-answer": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Accept an answer",
         description:
           "Marks a specific reply as the accepted answer for a Q&A style discussion.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3123,7 +3127,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["replyId"],
+                required: [ "replyId" ],
                 properties: { replyId: { type: "string" } },
               },
             },
@@ -3153,9 +3157,9 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/live-sessions": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Schedule a live session",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -3184,11 +3188,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/live-sessions/instructor/my-sessions": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Get instructor live sessions",
         description:
           "Returns all live sessions created by the authenticated instructor.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "Instructor sessions retrieved",
@@ -3212,9 +3216,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/live-sessions/{id}": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get live session details",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3241,9 +3245,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update live session details",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3278,9 +3282,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Delete a live session",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3310,9 +3314,9 @@ const definition: OpenAPIV3.Document = {
 
     "/live-sessions/course/{courseId}": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "List course live sessions",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -3344,9 +3348,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/live-sessions/{id}/status": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update live session status",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3364,7 +3368,7 @@ const definition: OpenAPIV3.Document = {
                 properties: {
                   status: {
                     type: "string",
-                    enum: ["scheduled", "ongoing", "completed", "cancelled"],
+                    enum: [ "scheduled", "ongoing", "completed", "cancelled" ],
                   },
                 },
               },
@@ -3391,9 +3395,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/live-sessions/{id}/register": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Register for a live session",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3407,9 +3411,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/live-sessions/{id}/join": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Join a live session",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3427,11 +3431,11 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/gamification/my-stats": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get user points and rank",
         description:
           "Returns the authenticated user points, level, streak, and earned badges.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -3469,17 +3473,17 @@ const definition: OpenAPIV3.Document = {
     },
     "/gamification/leaderboard/{type}": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get leaderboard rankings",
         description:
           "Returns the leaderboard for a specific type (e.g., global, weekly). Can optionally be filtered by courseId.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "type",
             in: "path",
             required: true,
-            schema: { type: "string", enum: ["global", "weekly", "monthly"] },
+            schema: { type: "string", enum: [ "global", "weekly", "monthly" ] },
           },
           {
             name: "courseId",
@@ -3508,18 +3512,18 @@ const definition: OpenAPIV3.Document = {
     },
     "/gamification/award-points": {
       post: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Manually award points to a user",
         description:
           "Allows an administrator to manually add points to a user account.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["userId", "points", "action"],
+                required: [ "userId", "points", "action" ],
                 properties: {
                   userId: { type: "string" },
                   points: { type: "number" },
@@ -3554,11 +3558,11 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/certificates/my-certificates": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "List user certificates",
         description:
           "Returns all academic certificates earned by the authenticated student.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -3582,7 +3586,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/certificates/verify/{credentialId}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Verify a certificate",
         description:
           "Publicly verify the authenticity of a certificate using its unique credential ID.",
@@ -3615,10 +3619,10 @@ const definition: OpenAPIV3.Document = {
     },
     "/certificates/templates": {
       get: {
-        tags: ["Instructor", "Admin"],
+        tags: [ "Instructor", "Admin" ],
         summary: "List certificate templates",
         description: "Returns available certificate designs and templates.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -3642,11 +3646,11 @@ const definition: OpenAPIV3.Document = {
         },
       },
       post: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Create certificate template",
         description:
           "Administrators can define a new certificate design template.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -3675,18 +3679,18 @@ const definition: OpenAPIV3.Document = {
     },
     "/certificates/issue": {
       post: {
-        tags: ["Instructor", "Admin"],
+        tags: [ "Instructor", "Admin" ],
         summary: "Manually issue a certificate",
         description:
           "Instructors or admins can manually award a certificate to a student for a specific course.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["userId", "courseId"],
+                required: [ "userId", "courseId" ],
                 properties: {
                   userId: { type: "string" },
                   courseId: { type: "string" },
@@ -3716,11 +3720,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/certificates/{id}/revoke": {
       patch: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Revoke a certificate",
         description:
           "Administrators can revoke an issued certificate for academic integrity or administrative reasons.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3735,7 +3739,7 @@ const definition: OpenAPIV3.Document = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["reason"],
+                required: [ "reason" ],
                 properties: { reason: { type: "string" } },
               },
             },
@@ -3766,11 +3770,11 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/notifications": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get user notifications",
         description:
           "Returns a paginated list of notifications for the authenticated user. Supports filtering by status, type, and priority.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -3785,7 +3789,7 @@ const definition: OpenAPIV3.Document = {
           {
             name: "status",
             in: "query",
-            schema: { type: "string", enum: ["unread", "read", "archived"] },
+            schema: { type: "string", enum: [ "unread", "read", "archived" ] },
           },
           {
             name: "type",
@@ -3799,7 +3803,7 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["low", "normal", "high", "urgent"],
+              enum: [ "low", "normal", "high", "urgent" ],
             },
           },
         ],
@@ -3829,11 +3833,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/notifications/mark-all-read": {
       patch: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Mark all notifications as read",
         description:
           'Updates the status of all current unread notifications for the user to "read".',
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -3854,10 +3858,10 @@ const definition: OpenAPIV3.Document = {
     },
     "/notifications/{id}/read": {
       patch: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Mark specific notification as read",
         description: 'Updates the status of a single notification to "read".',
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3887,11 +3891,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/notifications/{id}": {
       delete: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Delete a notification",
         description:
           "Permanently removes a notification from the user account.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -3925,11 +3929,11 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/analytics/my-performance/{courseId}": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Personal performance report",
         description:
           "Returns learning analytics and performance predictions for the authenticated user in a specific course.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -3958,18 +3962,18 @@ const definition: OpenAPIV3.Document = {
     },
     "/analytics/track": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Track user activity",
         description:
           "Pings a learning metric (e.g., timeSpent) to be recorded in the analytics system.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "metric", "value"],
+                required: [ "courseId", "metric", "value" ],
                 properties: {
                   courseId: { type: "string" },
                   metric: { type: "string", example: "timeSpent" },
@@ -3996,11 +4000,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/analytics/course-stats/{courseId}": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Course-wide analytics report",
         description:
           "Returns aggregated course statistics for a set period (daily, weekly, or monthly).",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -4013,7 +4017,7 @@ const definition: OpenAPIV3.Document = {
             in: "query",
             schema: {
               type: "string",
-              enum: ["daily", "weekly", "monthly"],
+              enum: [ "daily", "weekly", "monthly" ],
               default: "weekly",
             },
           },
@@ -4038,11 +4042,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/analytics/course-stats/{courseId}/refresh": {
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Refresh course analytics",
         description:
           "Manually triggers a new sync/recalculation of course-wide analytics data.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -4075,19 +4079,19 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/ai/sessions": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Start AI tutoring session",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "type"],
+                required: [ "courseId", "type" ],
                 properties: {
                   courseId: { type: "string" },
-                  type: { type: "string", enum: ["tutor", "study_assistant"] },
+                  type: { type: "string", enum: [ "tutor", "study_assistant" ] },
                 },
               },
             },
@@ -4102,7 +4106,7 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/system-admin/categories": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "List taxonomy categories and subcategories",
         description:
           "Returns active course categories. Supports filtering for parent categories, subcategories, or fetching subcategories of a specific parent. If no parameters are provided, returns all parent categories with their subcategories populated. Query params:\n- parentId: string (fetch subcategories of this parent)\n- subOnly: boolean (fetch only subcategories)\n- parentOnly: boolean (fetch only parent categories)",
@@ -4153,18 +4157,18 @@ const definition: OpenAPIV3.Document = {
         },
       },
       post: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Create a new category",
         description:
           "Allows administrators to add a new category to the platform taxonomy.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["name", "slug"],
+                required: [ "name", "slug" ],
                 properties: {
                   name: { type: "string" },
                   slug: { type: "string" },
@@ -4197,7 +4201,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/system-admin/announcements": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get global announcements",
         description: "Returns all active global platform announcements.",
         responses: {
@@ -4221,28 +4225,28 @@ const definition: OpenAPIV3.Document = {
         },
       },
       post: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Post a new announcement",
         description:
           "Allows administrators or instructors to post a platform-wide or course-specific announcement.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["title", "content"],
+                required: [ "title", "content" ],
                 properties: {
                   title: { type: "string" },
                   content: { type: "string" },
                   type: {
                     type: "string",
-                    enum: ["info", "warning", "urgent", "success"],
+                    enum: [ "info", "warning", "urgent", "success" ],
                   },
                   targetAudience: {
                     type: "string",
-                    enum: ["all", "students", "instructors"],
+                    enum: [ "all", "students", "instructors" ],
                   },
                   courseId: { type: "string" },
                   isPinned: { type: "boolean" },
@@ -4271,18 +4275,18 @@ const definition: OpenAPIV3.Document = {
     },
     "/system-admin/reviews": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Submit a course review",
         description:
           "Allows a student to post a review and rating for a course they are enrolled in.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId", "rating", "review"],
+                required: [ "courseId", "rating", "review" ],
                 properties: {
                   courseId: { type: "string" },
                   rating: { type: "number", minimum: 1, maximum: 5 },
@@ -4317,18 +4321,18 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/payments/checkout": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Initialize course purchase",
         description:
           "Initializes a Paystack transaction for a specific course. Returns authorization URL for redirected payment.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId"],
+                required: [ "courseId" ],
                 properties: { courseId: { type: "string" } },
               },
             },
@@ -4362,11 +4366,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/payments/verify": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Verify payment",
         description:
           "Verifies the status of a Paystack transaction using its reference ID.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "reference",
@@ -4395,7 +4399,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/payments/webhook": {
       post: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Paystack Webhook",
         description:
           "Endpoint for Paystack to send event notifications (charge.success, etc.).",
@@ -4408,9 +4412,9 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/cart": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get user cart",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -4429,24 +4433,24 @@ const definition: OpenAPIV3.Document = {
         },
       },
       delete: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Clear cart",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: { 200: { description: "Cart cleared" } },
       },
     },
     "/cart/add": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Add course to cart",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId"],
+                required: [ "courseId" ],
                 properties: { courseId: { type: "string" } },
               },
             },
@@ -4457,9 +4461,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/cart/remove/{courseId}": {
       delete: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Remove course from cart",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -4477,9 +4481,9 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/wishlist": {
       get: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Get user wishlist",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -4500,16 +4504,16 @@ const definition: OpenAPIV3.Document = {
     },
     "/wishlist/toggle": {
       post: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Toggle course in wishlist",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["courseId"],
+                required: [ "courseId" ],
                 properties: { courseId: { type: "string" } },
               },
             },
@@ -4520,9 +4524,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/wishlist/{courseId}": {
       delete: {
-        tags: ["Student"],
+        tags: [ "Student" ],
         summary: "Remove course from wishlist",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "courseId",
@@ -4540,7 +4544,7 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/blog": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "List blog posts",
         description:
           "Returns a paginated list of published blog posts. Supports filtering by category and tag.",
@@ -4598,9 +4602,9 @@ const definition: OpenAPIV3.Document = {
         },
       },
       post: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Create a blog post",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -4614,11 +4618,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/blog/my": {
       get: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "List my blog posts",
         description:
           "Returns a paginated list of blog posts created by the authenticated instructor or admin. Supports filtering by category, tag, status, and search.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -4645,7 +4649,7 @@ const definition: OpenAPIV3.Document = {
           {
             name: "status",
             in: "query",
-            schema: { type: "string", enum: ["draft", "published"] },
+            schema: { type: "string", enum: [ "draft", "published" ] },
             description: "Filter by post status",
           },
           {
@@ -4681,7 +4685,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/blog/{slug}": {
       get: {
-        tags: ["Public"],
+        tags: [ "Public" ],
         summary: "Get blog post by slug",
         parameters: [
           {
@@ -4705,9 +4709,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/blog/{id}": {
       patch: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Update blog post",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -4727,9 +4731,9 @@ const definition: OpenAPIV3.Document = {
         responses: { 200: { description: "Post updated" } },
       },
       delete: {
-        tags: ["Instructor"],
+        tags: [ "Instructor" ],
         summary: "Delete blog post",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -4747,11 +4751,11 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/assets/upload": {
       post: {
-        tags: ["Assets"],
+        tags: [ "Assets" ],
         summary: "Upload a file",
         description:
           "Uploads a file to Cloudinary and saves the metadata. Supports folder-based organization. Non-admin users can only upload to their own folders; admins can upload to any folder.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
@@ -4786,11 +4790,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/assets": {
       get: {
-        tags: ["Assets"],
+        tags: [ "Assets" ],
         summary: "List assets",
         description:
           "Admins can list all assets. Non-admin users only see assets they created.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "page",
@@ -4806,7 +4810,7 @@ const definition: OpenAPIV3.Document = {
           {
             name: "type",
             in: "query",
-            schema: { type: "string", enum: ["image", "video", "raw"] },
+            schema: { type: "string", enum: [ "image", "video", "raw" ] },
           },
           { name: "search", in: "query", schema: { type: "string" } },
         ],
@@ -4836,11 +4840,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/assets/folders": {
       get: {
-        tags: ["Assets"],
+        tags: [ "Assets" ],
         summary: "Get unique asset folders",
         description:
           "Admins see all folders. Non-admin users only see folders they have created assets in.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
           200: {
             description: "OK",
@@ -4861,9 +4865,9 @@ const definition: OpenAPIV3.Document = {
     },
     "/assets/{id}": {
       delete: {
-        tags: ["Assets"],
+        tags: [ "Assets" ],
         summary: "Delete an asset",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "id",
@@ -4877,18 +4881,18 @@ const definition: OpenAPIV3.Document = {
     },
     "/system-admin/settings": {
       patch: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Update platform system settings",
         description:
           "Allows administrators to update specific platform settings using a key-value store.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["key", "value"],
+                required: [ "key", "value" ],
                 properties: {
                   key: { type: "string" },
                   value: { type: "object" },
@@ -4917,11 +4921,11 @@ const definition: OpenAPIV3.Document = {
     },
     "/system-admin/settings/{key}": {
       get: {
-        tags: ["Admin"],
+        tags: [ "Admin" ],
         summary: "Get a platform setting",
         description:
           "Returns the value of a specific platform setting by its key.",
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         parameters: [
           {
             name: "key",
