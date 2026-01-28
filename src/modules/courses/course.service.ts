@@ -100,7 +100,6 @@ export class CourseService
         const modules = await Module.find({ courseId }).sort('order');
         const lessons = await Lesson.find({ courseId }).sort('order');
 
-        console.log('Modules:', modules);
 
         return modules.map(mod => ({
             ...mod.toObject(),
@@ -117,6 +116,128 @@ export class CourseService
         })
             .populate('instructorId', 'profile')
             .sort('-createdAt');
+    }
+
+    static async getInstructorCourseById(courseId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter)
+            .populate('instructorId', 'profile')
+            .populate('category', 'name')
+            .populate('subcategory', 'name');
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+        return course;
+    }
+
+    static async updateCourseStatus(courseId: string, instructorId: string, status: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        const allowedStatuses = [ 'draft', 'published', 'archived' ];
+        if (!allowedStatuses.includes(status)) {
+            throw createError(400, 'Invalid status');
+        }
+
+        const updateData: any = { status };
+        if (status === 'published' && !course.publishedAt) {
+            updateData.publishedAt = new Date();
+        }
+
+        return await Course.findByIdAndUpdate(courseId, { $set: updateData }, { new: true });
+    }
+
+    static async updateCourse(courseId: string, instructorId: string, updateData: any, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        if (updateData.title && updateData.title !== course.title) {
+            updateData.slug = slugify(updateData.title, { lower: true });
+        }
+
+        return await Course.findByIdAndUpdate(courseId, { $set: updateData }, { new: true });
+    }
+
+    static async deleteCourse(courseId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        // Delete modules and lessons associated with this course
+        await Module.deleteMany({ courseId });
+        await Lesson.deleteMany({ courseId });
+
+        return await Course.findByIdAndDelete(courseId);
+    }
+
+    static async updateModule(courseId: string, moduleId: string, instructorId: string, updateData: any, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        const module = await Module.findOneAndUpdate({ _id: moduleId, courseId }, { $set: updateData }, { new: true });
+        if (!module) throw createError(404, 'Module not found');
+        return module;
+    }
+
+    static async deleteModule(courseId: string, moduleId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        const module = await Module.findOneAndDelete({ _id: moduleId, courseId });
+        if (!module) throw createError(404, 'Module not found');
+
+        // Delete lessons associated with this module
+        await Lesson.deleteMany({ moduleId });
+
+        // Update course metadata
+        const totalModules = await Module.countDocuments({ courseId });
+        const totalLessons = await Lesson.countDocuments({ courseId });
+        await Course.findByIdAndUpdate(courseId, {
+            $set: {
+                'metadata.totalModules': totalModules,
+                'metadata.totalLessons': totalLessons,
+                'metadata.lastUpdated': new Date()
+            }
+        });
+
+        return module;
+    }
+
+    static async updateLesson(courseId: string, moduleId: string, lessonId: string, instructorId: string, updateData: any, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        const lesson = await Lesson.findOneAndUpdate({ _id: lessonId, moduleId, courseId }, { $set: updateData }, { new: true });
+        if (!lesson) throw createError(404, 'Lesson not found');
+        return lesson;
+    }
+
+    static async deleteLesson(courseId: string, moduleId: string, lessonId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
+        const course = await Course.findOne(filter);
+        if (!course) throw createError(404, 'Course not found or you are not authorized');
+
+        const lesson = await Lesson.findOneAndDelete({ _id: lessonId, moduleId, courseId });
+        if (!lesson) throw createError(404, 'Lesson not found');
+
+        // Update course metadata
+        const totalLessons = await Lesson.countDocuments({ courseId });
+        await Course.findByIdAndUpdate(courseId, {
+            $set: { 'metadata.totalLessons': totalLessons, 'metadata.lastUpdated': new Date() }
+        });
+
+        return lesson;
     }
 
     static async listCourses(query: any)
@@ -153,7 +274,7 @@ export class CourseService
         }
 
 
-        console.log(filter);
+
 
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 

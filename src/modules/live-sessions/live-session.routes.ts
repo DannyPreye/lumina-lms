@@ -27,4 +27,25 @@ router.patch(
     LiveSessionController.updateStatus as any
 );
 
+router.get(
+    '/instructor/my-sessions',
+    protect,
+    authorize('instructor', 'admin'),
+    LiveSessionController.getInstructorSessions as any
+);
+
+router.patch(
+    '/:id',
+    protect,
+    authorize('instructor', 'admin'),
+    LiveSessionController.update as any
+);
+
+router.delete(
+    '/:id',
+    protect,
+    authorize('instructor', 'admin'),
+    LiveSessionController.delete as any
+);
+
 export default router;

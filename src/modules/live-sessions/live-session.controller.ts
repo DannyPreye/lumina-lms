@@ -68,4 +68,36 @@ export class LiveSessionController
             next(error);
         }
     }
+
+    static async getInstructorSessions(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const sessions = await LiveSessionService.getInstructorSessions(req.user.id);
+            res.json({ success: true, data: sessions });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async update(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles.includes('admin');
+            const session = await LiveSessionService.updateSession(req.params.id as string, req.user.id, req.body, isAdmin);
+            res.json({ success: true, data: session });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async delete(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles.includes('admin');
+            await LiveSessionService.deleteSession(req.params.id as string, req.user.id, isAdmin);
+            res.json({ success: true, message: 'Live session deleted successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

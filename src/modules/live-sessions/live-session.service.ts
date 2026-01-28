@@ -73,4 +73,25 @@ export class LiveSessionService
 
         return await session.save();
     }
+
+    static async getInstructorSessions(instructorId: string)
+    {
+        return await LiveSession.find({ instructorId }).sort('-scheduledStart');
+    }
+
+    static async updateSession(sessionId: string, instructorId: string, updateData: any, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: sessionId } : { _id: sessionId, instructorId };
+        const session = await LiveSession.findOneAndUpdate(filter, { $set: updateData }, { new: true });
+        if (!session) throw createError(404, 'Live session not found or you are not authorized');
+        return session;
+    }
+
+    static async deleteSession(sessionId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const filter = isAdmin ? { _id: sessionId } : { _id: sessionId, instructorId };
+        const session = await LiveSession.findOneAndDelete(filter);
+        if (!session) throw createError(404, 'Live session not found or you are not authorized');
+        return session;
+    }
 }

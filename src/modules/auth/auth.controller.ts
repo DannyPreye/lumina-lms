@@ -183,7 +183,7 @@ export class AuthController
     static async refreshAccessToken(req: Request, res: Response, next: NextFunction)
     {
         try {
-            const refreshToken = req.cookies.refreshToken;
+            const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
             if (!refreshToken) throw createError(401, 'Refresh token not found');
 
             const decoded = verifyRefreshToken(refreshToken) as any;
