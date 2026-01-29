@@ -7,7 +7,7 @@ export interface ILesson extends Document
     title: string;
     description: string;
     order: number;
-    contentType: 'video' | 'text' | 'quiz' | 'assignment' | 'discussion' | 'live_session' | 'interactive' | 'document' | 'embed';
+    contentType: 'video' | 'text';
     videoContent?: {
         videoUrl: string;
         videoDuration: number;
@@ -18,14 +18,6 @@ export interface ILesson extends Document
     textContent?: {
         body: string;
         readingTime: number;
-    };
-    embedContent?: {
-        embedUrl: string;
-        embedType: 'youtube' | 'vimeo' | 'codepen' | 'custom';
-    };
-    interactiveContent?: {
-        type: string;
-        data: any;
     };
     attachments: {
         name: string;
@@ -78,14 +70,7 @@ const lessonSchema = new Schema<ILesson>(
             body: String,
             readingTime: { type: Number, default: 0 },
         },
-        embedContent: {
-            embedUrl: String,
-            embedType: { type: String, enum: [ 'youtube', 'vimeo', 'codepen', 'custom' ] },
-        },
-        interactiveContent: {
-            type: String,
-            data: Schema.Types.Mixed,
-        },
+
         attachments: [
             {
                 name: String,
