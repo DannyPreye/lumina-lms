@@ -34,8 +34,26 @@ export class UserController
         }
     }
 
-    static async getAllUsers(req: Request, res: Response, next: NextFunction)
+    static async updateAvatar(req: Request, res: Response, next: NextFunction)
     {
+        try {
+            const userId = (req as any).user.id;
+            const { avatar } = req.body;
+            if (!avatar) throw createError(400, 'Avatar URL is required');
+
+            const user = await UserService.updateProfile(userId, { avatar });
+            res.json({
+                success: true,
+                message: 'Avatar updated successfully',
+                data: user,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getAllUsers(req: Request, res: Response, next: NextFunction)
+{
         try {
             const { page, limit, status, role } = req.query;
             const query: any = {};

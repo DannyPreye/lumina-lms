@@ -14,6 +14,9 @@ router.use(protect);
 router.post('/upload', upload.single('file'), AssetController.upload as any);
 router.get('/', AssetController.list as any);
 router.get('/folders', AssetController.getFolders as any);
+router.post('/folders', AssetController.createFolder as any);
+router.delete('/folders/:id', AssetController.deleteFolder as any);
 router.delete('/:id', AssetController.delete as any);
 
 export default router;
+

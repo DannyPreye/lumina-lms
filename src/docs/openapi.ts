@@ -86,7 +86,9 @@ const definition: OpenAPIV3.Document = {
         properties: {
           _id: { type: "string" },
           email: { type: "string", format: "email" },
+          avatar: { type: "string" },
           roles: {
+
             type: "array",
             items: {
               type: "string",
@@ -842,6 +844,17 @@ const definition: OpenAPIV3.Document = {
           createdAt: { type: "string", format: "date-time" },
         },
       },
+      Folder: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          userId: { type: "string" },
+          name: { type: "string" },
+          path: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
       LiveSession: {
         type: "object",
         properties: {
@@ -1374,7 +1387,46 @@ const definition: OpenAPIV3.Document = {
         },
       },
     },
+    "/users/avatar": {
+      patch: {
+        tags: [ "User" ],
+        summary: "Update current user avatar",
+        security: [ { bearerAuth: [] } ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "avatar" ],
+                properties: {
+                  avatar: { type: "string", description: "The URL of the new avatar" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Avatar updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                    data: { $ref: "#/components/schemas/User" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/users": {
+
       get: {
         tags: [ "Admin" ],
         summary: "List all users (Admin only)",
@@ -4841,9 +4893,9 @@ const definition: OpenAPIV3.Document = {
     "/assets/folders": {
       get: {
         tags: [ "Assets" ],
-        summary: "Get unique asset folders",
+        summary: "List user folders",
         description:
-          "Admins see all folders. Non-admin users only see folders they have created assets in.",
+          "Admins see all folders. Non-admin users only see folders they have created.",
         security: [ { bearerAuth: [] } ],
         responses: {
           200: {
@@ -4854,7 +4906,75 @@ const definition: OpenAPIV3.Document = {
                   type: "object",
                   properties: {
                     success: { type: "boolean" },
-                    data: { type: "array", items: { type: "string" } },
+                    data: { type: "array", items: { $ref: "#/components/schemas/Folder" } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: [ "Assets" ],
+        summary: "Create a new folder",
+        description: "Creates a new folder for organizing assets.",
+        security: [ { bearerAuth: [] } ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "name" ],
+                properties: {
+                  name: { type: "string", description: "Name of the folder" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Folder created",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    data: { $ref: "#/components/schemas/Folder" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/assets/folders/{id}": {
+      delete: {
+        tags: [ "Assets" ],
+        summary: "Delete a folder",
+        description: "Deletes a folder and all assets contained within it from both DB and Cloudinary.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Folder deleted successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
                   },
                 },
               },

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { PaymentService } from './payment.service';
 import { AuthRequest } from '../../common/middlewares/auth.middleware';
+import { User } from '../users/user.model';
 
 export class PaymentController
 {
@@ -8,9 +9,12 @@ export class PaymentController
     {
         try {
             const { courseId } = req.body;
+
+            console.log("user email", req.user);
+            const user = await User.findById(req.user.id);
             const result = await PaymentService.initializeCoursePurchase(
                 req.user.id,
-                req.user.email,
+                user?.email as string,
                 courseId
             );
             res.json({ success: true, data: result });

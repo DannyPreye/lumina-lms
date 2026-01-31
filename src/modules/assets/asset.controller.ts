@@ -9,11 +9,23 @@ export class AssetController
     {
         try {
             if (!req.file) throw createError(400, 'No file uploaded');
-            const folder = req.body.folder || 'lumina/general';
+            let folderPath = 'lumina/general';
 
-            const asset = await AssetService.uploadAsset(req.user.id, req.file, folder);
+            if (req.body.folder) {
+                // If a folder name is provided, ensure it exists in our DB
+                const folderName = req.body.folder;
+                let folder = await AssetService.getFolderByName(req.user.id, folderName);
+
+                if (!folder) {
+                    folder = await AssetService.createFolder(req.user.id, folderName);
+                }
+                folderPath = folder.path;
+            }
+
+            const asset = await AssetService.uploadAsset(req.user.id, req.file, folderPath);
             res.status(201).json({ success: true, data: asset });
         } catch (error) {
+
             next(error);
         }
     }
@@ -50,4 +62,30 @@ export class AssetController
             next(error);
         }
     }
+
+    static async createFolder(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { name } = req.body;
+            if (!name) throw createError(400, 'Folder name is required');
+
+            const folder = await AssetService.createFolder(req.user.id, name);
+            res.status(201).json({ success: true, data: folder });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async deleteFolder(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles?.includes('admin');
+            await AssetService.deleteFolder(req.user.id, req.params.id as string, isAdmin);
+            res.json({ success: true, message: 'Folder and its contents deleted successfully' });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
+
+

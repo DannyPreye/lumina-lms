@@ -6,6 +6,7 @@ export interface IUser extends Document
     email: string;
     passwordHash?: string;
     roles: ('student' | 'instructor' | 'admin' | 'teaching_assistant')[];
+    avatar?: string;
     profile: {
         firstName: string;
         lastName: string;
@@ -17,6 +18,7 @@ export interface IUser extends Document
         language?: string;
         pronouns?: string;
     };
+
     contactInfo: {
         phone?: string;
         alternateEmail?: string;
@@ -60,8 +62,10 @@ const userSchema = new Schema<IUser>(
             enum: [ 'student', 'instructor', 'admin', 'teaching_assistant' ],
             default: [ 'student' ],
         },
+        avatar: String,
         profile: {
             firstName: { type: String, required: true },
+
             lastName: { type: String, required: true },
             displayName: { type: String, required: true },
             avatar: String,
