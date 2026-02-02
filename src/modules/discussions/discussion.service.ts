@@ -118,21 +118,197 @@ export class DiscussionService
         return discussion;
     }
 
-    static async upvoteDiscussion(discussionId: string)
-    {
-        return await Discussion.findByIdAndUpdate(
-            discussionId,
-            { $inc: { upvotes: 1 } },
-            { new: true }
-        );
-    }
-
-    static async acceptAnswer(discussionId: string, replyId: string, instructorId: string)
+    static async updateDiscussion(discussionId: string, authorId: string, updateData: any, isAdmin: boolean = false)
     {
         const discussion = await Discussion.findById(discussionId);
         if (!discussion) throw createError(404, 'Discussion not found');
 
-        // Safety check: Logic to ensure only author or instructor can accept answer could be added here
+        // Authorization: Only author or admin can update
+        if (discussion.authorId.toString() !== authorId && !isAdmin) {
+            throw createError(403, 'You are not authorized to update this discussion');
+        }
+
+        Object.assign(discussion, updateData);
+        return await discussion.save();
+    }
+
+    static async deleteDiscussion(discussionId: string, authorId: string, isAdmin: boolean = false)
+    {
+        const discussion = await Discussion.findById(discussionId);
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        // Authorization: Only author or admin can delete
+        if (discussion.authorId.toString() !== authorId && !isAdmin) {
+            throw createError(403, 'You are not authorized to delete this discussion');
+        }
+
+        discussion.deletedAt = new Date();
+        await discussion.save();
+
+        return { success: true, message: 'Discussion deleted successfully' };
+    }
+
+    static async toggleLock(discussionId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const discussion = await Discussion.findById(discussionId).populate('courseId', 'instructorId coInstructors');
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const course = discussion.courseId as any;
+        const isCourseInstructor = course.instructorId.toString() === instructorId || course.coInstructors?.some((id: any) => id.toString() === instructorId);
+
+        if (!isCourseInstructor && !isAdmin) {
+            throw createError(403, 'Only instructors or admins can lock/unlock discussions');
+        }
+
+        discussion.isLocked = !discussion.isLocked;
+        return await discussion.save();
+    }
+
+    static async togglePin(discussionId: string, instructorId: string, isAdmin: boolean = false)
+    {
+        const discussion = await Discussion.findById(discussionId).populate('courseId', 'instructorId coInstructors');
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const course = discussion.courseId as any;
+        const isCourseInstructor = course.instructorId.toString() === instructorId || course.coInstructors?.some((id: any) => id.toString() === instructorId);
+
+        if (!isCourseInstructor && !isAdmin) {
+            throw createError(403, 'Only instructors or admins can pin missions');
+        }
+
+        discussion.isPinned = !discussion.isPinned;
+        return await discussion.save();
+    }
+
+    static async vote(discussionId: string, userId: string, type: 'up' | 'down')
+    {
+        const discussion = await Discussion.findById(discussionId);
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const userObjectId = new Types.ObjectId(userId);
+        const hasUpvoted = discussion.upvotedBy.some(id => id.equals(userObjectId));
+        const hasDownvoted = discussion.downvotedBy.some(id => id.equals(userObjectId));
+
+        if (type === 'up') {
+            if (hasUpvoted) {
+                // Remove upvote (Toggle off)
+                (discussion.upvotedBy as any).pull(userObjectId);
+                discussion.upvotes = Math.max(0, discussion.upvotes - 1);
+            } else {
+                // Add upvote
+                discussion.upvotedBy.push(userObjectId);
+                discussion.upvotes += 1;
+                // Remove downvote if exists
+                if (hasDownvoted) {
+                    (discussion.downvotedBy as any).pull(userObjectId);
+                    discussion.downvotes = Math.max(0, discussion.downvotes - 1);
+                }
+            }
+        } else {
+            if (hasDownvoted) {
+                // Remove downvote (Toggle off)
+                (discussion.downvotedBy as any).pull(userObjectId);
+                discussion.downvotes = Math.max(0, discussion.downvotes - 1);
+            } else {
+                // Add downvote
+                discussion.downvotedBy.push(userObjectId);
+                discussion.downvotes += 1;
+                // Remove upvote if exists
+                if (hasUpvoted) {
+                    (discussion.upvotedBy as any).pull(userObjectId);
+                    discussion.upvotes = Math.max(0, discussion.upvotes - 1);
+                }
+            }
+        }
+
+        return await discussion.save();
+    }
+
+    static async voteReply(discussionId: string, replyId: string, userId: string, type: 'up' | 'down')
+    {
+        const discussion = await Discussion.findById(discussionId);
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const reply = (discussion.replies as any).id(replyId);
+        if (!reply) throw createError(404, 'Reply not found');
+
+        const userObjectId = new Types.ObjectId(userId);
+        const hasUpvoted = reply.upvotedBy.some((id: any) => id.equals(userObjectId));
+        const hasDownvoted = reply.downvotedBy.some((id: any) => id.equals(userObjectId));
+
+        if (type === 'up') {
+            if (hasUpvoted) {
+                reply.upvotedBy.pull(userObjectId);
+                reply.upvotes = Math.max(0, reply.upvotes - 1);
+            } else {
+                reply.upvotedBy.push(userObjectId);
+                reply.upvotes += 1;
+                if (hasDownvoted) {
+                    reply.downvotedBy.pull(userObjectId);
+                    reply.downvotes = Math.max(0, reply.downvotes - 1);
+                }
+            }
+        } else {
+            if (hasDownvoted) {
+                reply.downvotedBy.pull(userObjectId);
+                reply.downvotes = Math.max(0, reply.downvotes - 1);
+            } else {
+                reply.downvotedBy.push(userObjectId);
+                reply.downvotes += 1;
+                if (hasUpvoted) {
+                    reply.upvotedBy.pull(userObjectId);
+                    reply.upvotes = Math.max(0, reply.upvotes - 1);
+                }
+            }
+        }
+
+        return await discussion.save();
+    }
+
+    static async updateReply(discussionId: string, replyId: string, authorId: string, updateData: any)
+    {
+        const discussion = await Discussion.findById(discussionId);
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const reply = (discussion.replies as any).id(replyId);
+        if (!reply) throw createError(404, 'Reply not found');
+
+        if (reply.authorId.toString() !== authorId) {
+            throw createError(403, 'You are not authorized to update this reply');
+        }
+
+        Object.assign(reply, updateData);
+        return await discussion.save();
+    }
+
+    static async deleteReply(discussionId: string, replyId: string, authorId: string, isAdmin: boolean = false)
+    {
+        const discussion = await Discussion.findById(discussionId);
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const reply = (discussion.replies as any).id(replyId);
+        if (!reply) throw createError(404, 'Reply not found');
+
+        if (reply.authorId.toString() !== authorId && !isAdmin) {
+            throw createError(403, 'You are not authorized to delete this reply');
+        }
+
+        (reply as any).deleteOne();
+        return await discussion.save();
+    }
+
+    static async acceptAnswer(discussionId: string, replyId: string, userId: string, isAdmin: boolean = false)
+    {
+        const discussion = await Discussion.findById(discussionId).populate('courseId', 'instructorId coInstructors');
+        if (!discussion) throw createError(404, 'Discussion not found');
+
+        const course = discussion.courseId as any;
+        const isAuthor = discussion.authorId.toString() === userId;
+        const isInstructor = course.instructorId.toString() === userId || course.coInstructors?.some((id: any) => id.toString() === userId);
+
+        if (!isAuthor && !isInstructor && !isAdmin) {
+            throw createError(403, 'Only the author or an instructor can accept an answer');
+        }
 
         discussion.replies.forEach(reply =>
         {

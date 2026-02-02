@@ -235,6 +235,7 @@ const definition: OpenAPIV3.Document = {
               totalLessons: { type: "number" },
               totalQuizzes: { type: "number" },
               totalAssignments: { type: "number" },
+              totalStudents: { type: "number" },
               version: { type: "string" },
             },
           },
@@ -755,8 +756,10 @@ const definition: OpenAPIV3.Document = {
           body: { type: "string" },
           parentReplyId: { type: "string" },
           upvotes: { type: "number" },
+          downvotes: { type: "number" },
           isAcceptedAnswer: { type: "boolean" },
           createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
         },
       },
       Discussion: {
@@ -774,12 +777,15 @@ const definition: OpenAPIV3.Document = {
           tags: { type: "array", items: { type: "string" } },
           views: { type: "number" },
           upvotes: { type: "number" },
+          downvotes: { type: "number" },
           hasAcceptedAnswer: { type: "boolean" },
+          acceptedAnswerId: { type: "string" },
           replies: {
             type: "array",
             items: { $ref: "#/components/schemas/Reply" },
           },
           createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
         },
       },
       Cart: {
@@ -2112,7 +2118,7 @@ const definition: OpenAPIV3.Document = {
       get: {
         tags: [ "Public" ],
         summary: "Get course curriculum structure",
-        description: "Returns a hierarchical list of modules and their lessons",
+        description: "Returns a hierarchical list of modules and their basic lesson metadata. Sensitive content is excluded.",
         parameters: [
           {
             name: "courseId",
@@ -2132,13 +2138,109 @@ const definition: OpenAPIV3.Document = {
                     success: { type: "boolean" },
                     data: {
                       type: "array",
-                      items: { $ref: "#/components/schemas/Module" },
+                      items: {
+                        allOf: [
+                          { $ref: "#/components/schemas/Module" },
+                          {
+                            type: "object",
+                            properties: {
+                              lessons: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  description: "Filtered lesson metadata for public view",
+                                  properties: {
+                                    title: { type: "string" },
+                                    description: { type: "string" },
+                                    order: { type: "number" },
+                                    contentType: { type: "string" },
+                                    videoContent: {
+                                      type: "object",
+                                      properties: {
+                                        videoDuration: { type: "number" },
+                                        thumbnailUrl: { type: "string" },
+                                      },
+                                    },
+                                    textContent: {
+                                      type: "object",
+                                      properties: {
+                                        readingTime: { type: "number" },
+                                      },
+                                    },
+                                    estimatedDuration: { type: "number" },
+                                    isFree: { type: "boolean" },
+                                    moduleId: { type: "string" },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        ],
+                      },
                     },
                   },
                 },
               },
             },
           },
+        },
+      },
+    },
+    "/courses/{courseId}/enrolled": {
+      get: {
+        tags: [ "Student" ],
+        summary: "Get full course details for enrolled students",
+        description: "Returns full course information, enrollment status, and complete structure including all content for authorized students.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "courseId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Full course details retrieved",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    data: {
+                      type: "object",
+                      properties: {
+                        course: { $ref: "#/components/schemas/Course" },
+                        enrollment: { $ref: "#/components/schemas/Enrollment" },
+                        structure: {
+                          type: "array",
+                          items: {
+                            allOf: [
+                              { $ref: "#/components/schemas/Module" },
+                              {
+                                type: "object",
+                                properties: {
+                                  lessons: {
+                                    type: "array",
+                                    items: { $ref: "#/components/schemas/Lesson" },
+                                  },
+                                  totalLessons: { type: "number" },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          403: { description: "User not enrolled in this course" },
+          404: { description: "Course not found" },
         },
       },
     },
@@ -3076,13 +3178,117 @@ const definition: OpenAPIV3.Document = {
           404: { description: "Discussion not found" },
         },
       },
+      patch: {
+        tags: [ "Student" ],
+        summary: "Update a discussion thread",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  body: { type: "string" },
+                  tags: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: "Discussion updated" } },
+      },
+      delete: {
+        tags: [ "Student" ],
+        summary: "Delete a discussion thread",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: { 200: { description: "Discussion deleted" } },
+      },
+    },
+    "/discussions/{id}/lock": {
+      patch: {
+        tags: [ "Instructor" ],
+        summary: "Toggle thread lock status",
+        description: "Instructors can lock a thread to prevent new replies.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: { 200: { description: "Lock status toggled" } },
+      },
+    },
+    "/discussions/{id}/pin": {
+      patch: {
+        tags: [ "Instructor" ],
+        summary: "Toggle thread pin status",
+        description: "Instructors can pin a thread to the top of the forum.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: { 200: { description: "Pin status toggled" } },
+      },
+    },
+    "/discussions/{id}/vote": {
+      post: {
+        tags: [ "Student" ],
+        summary: "Vote on a discussion",
+        description: "Cast an upvote or downvote on a discussion thread.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "type" ],
+                properties: { type: { type: "string", enum: [ "up", "down" ] } },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: "Vote registered" } },
+      },
     },
     "/discussions/{id}/replies": {
       post: {
         tags: [ "Student" ],
         summary: "Add a reply to a discussion",
-        description:
-          "Adds a new reply or nested comment to an existing discussion thread.",
         security: [ { bearerAuth: [] } ],
         parameters: [
           {
@@ -3107,30 +3313,14 @@ const definition: OpenAPIV3.Document = {
             },
           },
         },
-        responses: {
-          201: {
-            description: "Reply added",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    success: { type: "boolean" },
-                    data: { $ref: "#/components/schemas/Discussion" },
-                  },
-                },
-              },
-            },
-          },
-        },
+        responses: { 201: { description: "Reply added" } },
       },
     },
-    "/discussions/{id}/upvote": {
+    "/discussions/{id}/replies/{replyId}/vote": {
       post: {
         tags: [ "Student" ],
-        summary: "Upvote a discussion",
-        description:
-          "Increments the upvote count for a specific discussion thread.",
+        summary: "Vote on a reply",
+        description: "Cast an upvote or downvote on a specific reply.",
         security: [ { bearerAuth: [] } ],
         parameters: [
           {
@@ -3139,23 +3329,80 @@ const definition: OpenAPIV3.Document = {
             required: true,
             schema: { type: "string" },
           },
+          {
+            name: "replyId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
-        responses: {
-          200: {
-            description: "Discussion upvoted",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    success: { type: "boolean" },
-                    data: { $ref: "#/components/schemas/Discussion" },
-                  },
-                },
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "type" ],
+                properties: { type: { type: "string", enum: [ "up", "down" ] } },
               },
             },
           },
         },
+        responses: { 200: { description: "Vote registered" } },
+      },
+    },
+    "/discussions/{id}/replies/{replyId}": {
+      patch: {
+        tags: [ "Student" ],
+        summary: "Update a reply",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+          {
+            name: "replyId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "body" ],
+                properties: { body: { type: "string" } },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: "Reply updated" } },
+      },
+      delete: {
+        tags: [ "Student" ],
+        summary: "Delete a reply",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+          {
+            name: "replyId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: { 200: { description: "Reply deleted" } },
       },
     },
     "/discussions/{id}/accept-answer": {
@@ -3185,22 +3432,7 @@ const definition: OpenAPIV3.Document = {
             },
           },
         },
-        responses: {
-          200: {
-            description: "Answer accepted",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    success: { type: "boolean" },
-                    data: { $ref: "#/components/schemas/Discussion" },
-                  },
-                },
-              },
-            },
-          },
-        },
+        responses: { 200: { description: "Answer accepted" } },
       },
     },
 

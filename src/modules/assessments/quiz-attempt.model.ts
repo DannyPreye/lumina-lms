@@ -56,5 +56,7 @@ const quizAttemptSchema = new Schema<IQuizAttempt>(
 );
 
 quizAttemptSchema.index({ quizId: 1, userId: 1, attemptNumber: 1 }, { unique: true });
+quizAttemptSchema.index({ userId: 1, courseId: 1 });
+quizAttemptSchema.index({ submittedAt: -1 });
 
 export const QuizAttempt = model<IQuizAttempt>('QuizAttempt', quizAttemptSchema);

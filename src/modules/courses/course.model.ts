@@ -53,6 +53,7 @@ export interface ICourse extends Document
         totalLessons: number;
         totalQuizzes: number;
         totalAssignments: number;
+        totalStudents: number;
         lastUpdated: Date;
         version: string;
     };
@@ -119,6 +120,7 @@ const courseSchema = new Schema<ICourse>(
             totalLessons: { type: Number, default: 0 },
             totalQuizzes: { type: Number, default: 0 },
             totalAssignments: { type: Number, default: 0 },
+            totalStudents: { type: Number, default: 0 },
             lastUpdated: { type: Date, default: Date.now },
             version: { type: String, default: '1.0.0' },
         },
@@ -133,5 +135,14 @@ const courseSchema = new Schema<ICourse>(
         timestamps: true,
     }
 );
+
+// Indexes for optimized searching and filtering
+courseSchema.index({ instructorId: 1 });
+courseSchema.index({ category: 1 });
+courseSchema.index({ subcategory: 1 });
+courseSchema.index({ status: 1 });
+courseSchema.index({ level: 1 });
+courseSchema.index({ createdAt: -1 }); // Often used for sorting
+courseSchema.index({ title: 'text', shortDescription: 'text' }); // Search optimization
 
 export const Course = model<ICourse>('Course', courseSchema);

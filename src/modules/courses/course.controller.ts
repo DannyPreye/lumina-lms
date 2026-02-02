@@ -45,6 +45,16 @@ export class CourseController
         }
     }
 
+    static async getEnrolledCourseDetail(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const result = await CourseService.getEnrolledCourseDetail(req.params.courseId as string, req.user!.id);
+            res.json({ success: true, data: result });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async addModule(req: Request, res: Response, next: NextFunction)
     {
         try {

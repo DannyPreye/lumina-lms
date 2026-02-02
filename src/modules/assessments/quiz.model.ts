@@ -82,4 +82,9 @@ const quizSchema = new Schema<IQuiz>(
     }
 );
 
+// Indexes for assessment management
+quizSchema.index({ courseId: 1, status: 1 });
+quizSchema.index({ lessonId: 1 });
+quizSchema.index({ type: 1 });
+
 export const Quiz = model<IQuiz>('Quiz', quizSchema);

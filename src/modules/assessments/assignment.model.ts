@@ -110,4 +110,9 @@ const assignmentSchema = new Schema<IAssignment>(
     { timestamps: true }
 );
 
+// Indexes for assignments
+assignmentSchema.index({ courseId: 1, status: 1 });
+assignmentSchema.index({ dueDate: 1 });
+assignmentSchema.index({ type: 1 });
+
 export const Assignment = model<IAssignment>('Assignment', assignmentSchema);

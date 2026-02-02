@@ -17,7 +17,7 @@ export class EnrollmentService
         const existingEnrollment = await Enrollment.findOne({ userId, courseId });
         if (existingEnrollment) throw createError(400, 'User is already enrolled in this course');
 
-        return await Enrollment.create({
+        const enrollment = await Enrollment.create({
             userId,
             courseId,
             enrollmentType,
@@ -30,6 +30,12 @@ export class EnrollmentService
                 quizzesProgress: []
             }
         });
+
+        // Increment total students count in course metadata
+        course.metadata.totalStudents += 1;
+        await course.save();
+
+        return enrollment;
     }
 
     static async getUserEnrollments(userId: string, query: any)
@@ -117,11 +123,17 @@ export class EnrollmentService
 
             // --- INTER-MODULE CONNECTION: Certificates ---
             // Automatically issue a certificate upon passing
-            await CertificateService.generateCertificate(userId, courseId);
+            if (course && course.certification.provided && course.certification.certificateTemplateId) {
+                await CertificateService.generateCertificate(
+                    userId,
+                    courseId,
+                    course.certification.certificateTemplateId.toString()
+                );
+            }
 
             // --- INTER-MODULE CONNECTION: Gamification ---
             // Award trophy for course completion
-            const courseAchievement = await GamificationService.awardAchievement(userId, 'course_complete_placeholder', courseId);
+            await GamificationService.awardAchievement(userId, 'course_complete_placeholder', courseId);
         }
 
         enrollment.lastAccessedAt = new Date();

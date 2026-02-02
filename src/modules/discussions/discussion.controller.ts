@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { DiscussionService } from './discussion.service';
 import { AuthRequest } from '../../common/middlewares/auth.middleware';
+import createError from 'http-errors';
 
 export class DiscussionController
 {
@@ -51,10 +52,121 @@ export class DiscussionController
         }
     }
 
-    static async upvote(req: Request, res: Response, next: NextFunction)
+    static async update(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
-            const discussion = await DiscussionService.upvoteDiscussion(req.params.id as string);
+            const isAdmin = req.user.roles?.includes('admin');
+            const discussion = await DiscussionService.updateDiscussion(
+                req.params.id as string,
+                req.user.id,
+                req.body,
+                isAdmin
+            );
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async delete(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles?.includes('admin');
+            const result = await DiscussionService.deleteDiscussion(
+                req.params.id as string,
+                req.user.id,
+                isAdmin
+            );
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async toggleLock(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles?.includes('admin');
+            const discussion = await DiscussionService.toggleLock(
+                req.params.id as string,
+                req.user.id,
+                isAdmin
+            );
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async togglePin(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles?.includes('admin');
+            const discussion = await DiscussionService.togglePin(
+                req.params.id as string,
+                req.user.id,
+                isAdmin
+            );
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async vote(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { type } = req.body;
+            if (![ 'up', 'down' ].includes(type)) throw createError(400, 'Invalid vote type');
+            const discussion = await DiscussionService.vote(req.params.id as string, req.user.id, type as 'up' | 'down');
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async voteReply(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { type } = req.body;
+            if (![ 'up', 'down' ].includes(type)) throw createError(400, 'Invalid vote type');
+            const discussion = await DiscussionService.voteReply(
+                req.params.id as string,
+                req.params.replyId as string,
+                req.user.id,
+                type as 'up' | 'down'
+            );
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async updateReply(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const discussion = await DiscussionService.updateReply(
+                req.params.id as string,
+                req.params.replyId as string,
+                req.user.id,
+                req.body
+            );
+            res.json({ success: true, data: discussion });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async deleteReply(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const isAdmin = req.user.roles?.includes('admin');
+            const discussion = await DiscussionService.deleteReply(
+                req.params.id as string,
+                req.params.replyId as string,
+                req.user.id,
+                isAdmin
+            );
             res.json({ success: true, data: discussion });
         } catch (error) {
             next(error);
@@ -65,10 +177,12 @@ export class DiscussionController
     {
         try {
             const { replyId } = req.body;
+            const isAdmin = req.user.roles?.includes('admin');
             const discussion = await DiscussionService.acceptAnswer(
                 req.params.id as string,
                 replyId,
-                req.user.id
+                req.user.id,
+                isAdmin
             );
             res.json({ success: true, data: discussion });
         } catch (error) {

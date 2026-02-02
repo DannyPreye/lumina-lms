@@ -105,4 +105,9 @@ const lessonSchema = new Schema<ILesson>(
     }
 );
 
+// Indexes for curriculum and progress tracking
+lessonSchema.index({ courseId: 1 });
+lessonSchema.index({ moduleId: 1, order: 1 });
+lessonSchema.index({ contentType: 1 });
+
 export const Lesson = model<ILesson>('Lesson', lessonSchema);

@@ -10,6 +10,7 @@ router.get('/instructor/my-courses', protect, authorize('instructor', 'admin'), 
 router.get('/instructor/my-courses/:courseId', protect, authorize('instructor', 'admin'), CourseController.getInstructorCourse as any);
 router.get('/category/:categoryId', CourseController.getCoursesByCategory);
 router.get('/:courseId/structure', CourseController.getStructure);
+router.get('/:courseId/enrolled', protect, CourseController.getEnrolledCourseDetail as any);
 router.get('/:slug', CourseController.getCourse);
 
 // Protected instructor routes

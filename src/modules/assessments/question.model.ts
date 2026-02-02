@@ -130,4 +130,9 @@ const questionSchema = new Schema<IQuestion>(
     { timestamps: true }
 );
 
+// Indexes for quiz delivery and stats
+questionSchema.index({ quizId: 1, order: 1 });
+questionSchema.index({ difficulty: 1 });
+questionSchema.index({ type: 1 });
+
 export const Question = model<IQuestion>('Question', questionSchema);

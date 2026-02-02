@@ -114,6 +114,10 @@ const userSchema = new Schema<IUser>(
     }
 );
 
+// Indexes for performance
+userSchema.index({ roles: 1 });
+userSchema.index({ status: 1 });
+
 // Pre-save hook for password hashing
 userSchema.pre('save', async function ()
 {

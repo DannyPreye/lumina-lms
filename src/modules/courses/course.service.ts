@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Course } from './course.model';
 import { Module } from './module.model';
 import { Lesson } from './lesson.model';
+import { Enrollment } from '../enrollments/enrollment.model';
 import createError from 'http-errors';
 import slugify from 'slugify';
 
@@ -44,9 +45,10 @@ export class CourseService
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)
-            .select('-fullDescription -tags -settings -learningObjectives -learningObjectives -certification')
+            .select('title pricing coverImage thumbnail level slug shortDescription category subcategory instructorId metadata status createdAt')
             .skip(skip)
-            .limit(parseInt(limit as string));
+            .limit(parseInt(limit as string))
+            .lean();
 
         const total = await Course.countDocuments(filter);
 
@@ -97,8 +99,10 @@ export class CourseService
 
     static async getCourseStructure(courseId: string)
     {
-        const modules = await Module.find({ courseId }).sort('order');
-        const lessons = await Lesson.find({ courseId }).sort('order');
+        const modules = await Module.find({ courseId }).sort('order').lean();
+        const lessons = await Lesson.find({ courseId }).sort('order')
+            .select('title description order contentType videoContent.videoDuration videoContent.thumbnailUrl textContent.readingTime estimatedDuration isFree moduleId')
+            .lean();
 
 
         return modules.map(mod => ({
@@ -108,6 +112,35 @@ export class CourseService
         }));
     }
 
+    static async getEnrolledCourseDetail(courseId: string, userId: string)
+    {
+        const enrollment = await Enrollment.findOne({ userId, courseId }).lean();
+        if (!enrollment) throw createError(403, 'You are not enrolled in this course');
+
+        const course = await Course.findById(courseId)
+            .populate('instructorId', 'profile')
+            .populate('category', 'name')
+            .populate('subcategory', 'name')
+            .lean();
+
+        if (!course) throw createError(404, 'Course not found');
+
+        const modules = await Module.find({ courseId }).sort('order').lean();
+        const lessons = await Lesson.find({ courseId }).sort('order').lean();
+
+        const structure = modules.map(mod => ({
+            ...mod,
+            lessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()),
+            totalLessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()).length
+        }));
+
+        return {
+            course,
+            enrollment,
+            structure
+        };
+    }
+
     static async getCoursesByCategory(categoryId: string)
     {
         return await Course.find({
@@ -115,7 +148,11 @@ export class CourseService
             status: 'published'
         })
             .populate('instructorId', 'profile')
-            .sort('-createdAt');
+            .populate('category', 'name')
+            .populate('subcategory', 'name')
+            .sort('-createdAt')
+            .select('title pricing coverImage thumbnail level slug shortDescription category subcategory instructorId metadata status createdAt')
+            .lean();
     }
 
     static async getInstructorCourseById(courseId: string, instructorId: string, isAdmin: boolean = false)
@@ -280,13 +317,13 @@ export class CourseService
 
         const courses = await Course.find(filter)
             .populate('instructorId', 'profile')
-            .populate('instructorId', 'profile')
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)
-            .select('-fullDescription -tags -settings -learningObjectives -learningObjectives -certification')
+            .select('title pricing coverImage thumbnail level slug shortDescription category subcategory instructorId metadata status createdAt')
             .skip(skip)
-            .limit(parseInt(limit as string));
+            .limit(parseInt(limit as string))
+            .lean();
 
         const total = await Course.countDocuments(filter);
 

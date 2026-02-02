@@ -13,6 +13,8 @@ export interface IReply
     }[];
     upvotes: number;
     downvotes: number;
+    upvotedBy: Types.ObjectId[];
+    downvotedBy: Types.ObjectId[];
     isAcceptedAnswer: boolean;
     aiGenerated: boolean;
     createdAt: Date;
@@ -40,6 +42,8 @@ export interface IDiscussion extends Document
     views: number;
     upvotes: number;
     downvotes: number;
+    upvotedBy: Types.ObjectId[];
+    downvotedBy: Types.ObjectId[];
     hasAcceptedAnswer: boolean;
     acceptedAnswerId?: Types.ObjectId;
     replies: IReply[];
@@ -62,6 +66,8 @@ const replySchema = new Schema<IReply>(
         ],
         upvotes: { type: Number, default: 0 },
         downvotes: { type: Number, default: 0 },
+        upvotedBy: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
+        downvotedBy: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
         isAcceptedAnswer: { type: Boolean, default: false },
         aiGenerated: { type: Boolean, default: false },
         deletedAt: Date,
@@ -91,6 +97,8 @@ const discussionSchema = new Schema<IDiscussion>(
         views: { type: Number, default: 0 },
         upvotes: { type: Number, default: 0 },
         downvotes: { type: Number, default: 0 },
+        upvotedBy: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
+        downvotedBy: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
         hasAcceptedAnswer: { type: Boolean, default: false },
         acceptedAnswerId: { type: Schema.Types.ObjectId },
         replies: [ replySchema ],
@@ -100,6 +108,9 @@ const discussionSchema = new Schema<IDiscussion>(
 );
 
 discussionSchema.index({ courseId: 1, createdAt: -1 });
+discussionSchema.index({ lessonId: 1, createdAt: -1 });
 discussionSchema.index({ authorId: 1 });
+discussionSchema.index({ type: 1 });
+discussionSchema.index({ tags: 1 });
 
 export const Discussion = model<IDiscussion>('Discussion', discussionSchema);

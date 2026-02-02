@@ -4,6 +4,8 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import morgan from 'morgan';
 import createError from 'http-errors';
 import { mountSwagger } from './docs/swagger';
 import passport from './config/passport.config';
@@ -49,10 +51,35 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Logging
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+} else {
+    app.use(morgan('combined'));
+}
+
 // Body Parsers
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+
+// Workaround for Express 5 compatibility with mongoSanitize
+// Express 5 makes req.query a getter-only property, which breaks mongoSanitize
+app.use((req: Request, res: Response, next: NextFunction) =>
+{
+    Object.defineProperty(req, 'query', {
+        value: { ...req.query },
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+    next();
+});
+
+// Data Sanitization against NoSQL query injection
+app.use('/api', mongoSanitize());
+
+// Response compression
 app.use(compression());
 
 // Routes
@@ -131,10 +158,13 @@ app.use((req: Request, res: Response, next: NextFunction) =>
 app.use((err: any, req: Request, res: Response, next: NextFunction) =>
 {
     const statusCode = err.status || 500;
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     res.status(statusCode).json({
-        status: 'error',
+        success: false,
+        status: statusCode >= 500 ? 'error' : 'fail',
         message: err.message || 'Internal Server Error',
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        ...(isDevelopment && { stack: err.stack })
     });
 });
 

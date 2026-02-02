@@ -28,4 +28,7 @@ const moduleSchema = new Schema<IModule>(
     }
 );
 
+// Indexes for curriculum structure retrieval
+moduleSchema.index({ courseId: 1, order: 1 });
+
 export const Module = model<IModule>('Module', moduleSchema);

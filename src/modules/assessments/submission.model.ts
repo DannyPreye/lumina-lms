@@ -133,5 +133,8 @@ const submissionSchema = new Schema<ISubmission>(
 );
 
 submissionSchema.index({ assignmentId: 1, userId: 1, attemptNumber: 1 }, { unique: true });
+submissionSchema.index({ userId: 1, courseId: 1 });
+submissionSchema.index({ status: 1 });
+submissionSchema.index({ submittedAt: -1 });
 
 export const Submission = model<ISubmission>('Submission', submissionSchema);
