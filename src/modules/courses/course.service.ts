@@ -41,7 +41,7 @@ export class CourseService
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const courses = await Course.find(filter)
-            .populate('instructorId', 'profile')
+            .populate('instructorId', 'email instructorProfile')
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)
@@ -69,8 +69,8 @@ export class CourseService
     {
         const decodedSlug = decodeURIComponent(slug);
         const course = await Course.findOne({ slug: decodedSlug, status: 'published' })
-            .populate('instructorId', 'profile')
-            .populate('coInstructors', 'profile');
+            .populate('instructorId', 'email instructorProfile')
+            .populate('coInstructors', 'email instructorProfile');
         if (!course) throw createError(404, 'Course not found');
         return course;
     }
@@ -106,7 +106,7 @@ export class CourseService
 
 
         return modules.map(mod => ({
-            ...mod.toObject(),
+            ...mod,
             lessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()),
             totalLessons: lessons.filter(l => l.moduleId.toString() === mod._id.toString()).length
         }));
@@ -147,7 +147,7 @@ export class CourseService
             $or: [ { category: categoryId }, { subcategory: categoryId } ],
             status: 'published'
         })
-            .populate('instructorId', 'profile')
+            .populate('instructorId', 'email instructorProfile')
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort('-createdAt')
@@ -159,7 +159,7 @@ export class CourseService
     {
         const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
         const course = await Course.findOne(filter)
-            .populate('instructorId', 'profile')
+            .populate('instructorId', 'email instructorProfile')
             .populate('category', 'name')
             .populate('subcategory', 'name');
         if (!course) throw createError(404, 'Course not found or you are not authorized');
@@ -316,7 +316,7 @@ export class CourseService
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const courses = await Course.find(filter)
-            .populate('instructorId', 'profile')
+            .populate('instructorId', 'email instructorProfile')
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)

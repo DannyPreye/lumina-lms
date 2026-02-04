@@ -41,6 +41,7 @@ export class CourseController
             const structure = await CourseService.getCourseStructure(req.params.courseId as string);
             res.json({ success: true, data: structure });
         } catch (error) {
+            console.log("This is the error", error);
             next(error);
         }
     }

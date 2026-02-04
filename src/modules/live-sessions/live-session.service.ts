@@ -16,7 +16,7 @@ export class LiveSessionService
 
     static async getSessionById(sessionId: string)
     {
-        const session = await LiveSession.findById(sessionId).populate('instructorId', 'profile');
+        const session = await LiveSession.findById(sessionId).populate('instructorId', 'email instructorProfile');
         if (!session) throw createError(404, 'Live session not found');
         return session;
     }

@@ -1,25 +1,56 @@
-import { User, IUser } from '../users/user.model';
+import { User, IUser } from './user.model';
+import { InstructorProfile } from './instructor-profile.model';
+import { StudentProfile } from './student-profile.model';
 import createError from 'http-errors';
 
 export class UserService
 {
-    static async createUser(userData: Partial<IUser>)
+    static async createUser(userData: any)
     {
-        const userExists = await User.findOne({ email: userData.email });
+        const { firstName, lastName, displayName, roles, ...userCoreData } = userData;
+
+        const userExists = await User.findOne({ email: userCoreData.email });
         if (userExists) {
             throw createError(400, 'User already exists');
         }
-        return await User.create(userData);
+
+        const user = await User.create({ ...userCoreData, roles });
+
+        // Create profiles based on roles
+        if (roles.includes('instructor')) {
+            await InstructorProfile.create({
+                user: user._id,
+                firstName,
+                lastName,
+                displayName
+            });
+        }
+
+        if (roles.includes('student')) {
+            await StudentProfile.create({
+                user: user._id,
+                firstName,
+                lastName,
+                displayName
+            });
+        }
+
+        return user;
     }
 
     static async findByEmail(email: string)
     {
-        return await User.findOne({ email }).select('+passwordHash');
+        return await User.findOne({ email })
+            .select('+passwordHash')
+            .populate('instructorProfile')
+            .populate('studentProfile');
     }
 
     static async findById(id: string)
     {
-        const user = await User.findById(id);
+        const user = await User.findById(id)
+            .populate('instructorProfile')
+            .populate('studentProfile');
         if (!user) {
             throw createError(404, 'User not found');
         }
@@ -28,29 +59,45 @@ export class UserService
 
     static async updateProfile(userId: string, updateData: any)
     {
+        const { firstName, lastName, displayName, bio, title, avatar, preferences, ...rest } = updateData;
 
+        // Update core user data if any
+        if (Object.keys(rest).length > 0 || preferences) {
+            const user = await User.findById(userId);
+            if (!user) throw createError(404, 'User not found');
 
-        const { profile, ...rest } = updateData;
-
-        const getUser = await User.findById(userId);
-
-        const user = await User.findByIdAndUpdate(
-            userId,
-            {
-                $set: {
-                    profile: {
-                        ...getUser?.profile,
-                        ...profile
-                    },
-                    ...rest
-                }
-            },
-            { new: true, runValidators: true }
-        );
-        if (!user) {
-            throw createError(404, 'User not found');
+            const updatePayload: any = { ...rest };
+            if (preferences) {
+                updatePayload.preferences = {
+                    ...user.preferences,
+                    ...preferences
+                };
+            }
+            await User.findByIdAndUpdate(userId, { $set: updatePayload }, { new: true, runValidators: true });
         }
-        return user;
+
+        // Build profile update object from provided fields
+        const profileUpdate: any = {};
+        if (firstName !== undefined) profileUpdate.firstName = firstName;
+        if (lastName !== undefined) profileUpdate.lastName = lastName;
+        if (displayName !== undefined) profileUpdate.displayName = displayName;
+        if (bio !== undefined) profileUpdate.bio = bio;
+        if (title !== undefined) profileUpdate.title = title;
+        if (avatar !== undefined) profileUpdate.avatar = avatar;
+
+        if (Object.keys(profileUpdate).length > 0) {
+            const user = await User.findById(userId);
+            if (!user) throw createError(404, 'User not found');
+
+            if (user.roles.includes('instructor')) {
+                await InstructorProfile.findOneAndUpdate({ user: userId }, { $set: profileUpdate }, { upsert: true });
+            }
+            if (user.roles.includes('student')) {
+                await StudentProfile.findOneAndUpdate({ user: userId }, { $set: profileUpdate }, { upsert: true });
+            }
+        }
+
+        return await this.findById(userId);
     }
 
     static async findAll(query: any = {}, options: { page?: number; limit?: number; } = {})

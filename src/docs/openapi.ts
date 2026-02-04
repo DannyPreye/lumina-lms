@@ -86,40 +86,11 @@ const definition: OpenAPIV3.Document = {
         properties: {
           _id: { type: "string" },
           email: { type: "string", format: "email" },
-          avatar: { type: "string" },
           roles: {
-
             type: "array",
             items: {
               type: "string",
               enum: [ "student", "instructor", "admin", "teaching_assistant" ],
-            },
-          },
-          profile: {
-            type: "object",
-            properties: {
-              firstName: { type: "string" },
-              lastName: { type: "string" },
-              displayName: { type: "string" },
-              avatar: { type: "string" },
-              bio: { type: "string" },
-              title: { type: "string" },
-              timezone: { type: "string" },
-              language: { type: "string" },
-            },
-          },
-          contactInfo: {
-            type: "object",
-            properties: {
-              phone: { type: "string" },
-              socialLinks: {
-                type: "object",
-                properties: {
-                  linkedin: { type: "string" },
-                  twitter: { type: "string" },
-                  github: { type: "string" },
-                },
-              },
             },
           },
           status: {
@@ -128,8 +99,67 @@ const definition: OpenAPIV3.Document = {
           },
           emailVerified: { type: "boolean" },
           lastLogin: { type: "string", format: "date-time" },
+          preferences: {
+            type: "object",
+            properties: {
+              emailNotifications: { type: "boolean" },
+              pushNotifications: { type: "boolean" },
+              theme: { type: "string", enum: [ "light", "dark", "auto" ] },
+              language: { type: "string" },
+              timezone: { type: "string" },
+            },
+          },
+          studentProfile: { $ref: "#/components/schemas/StudentProfile" },
+          instructorProfile: { $ref: "#/components/schemas/InstructorProfile" },
           createdAt: { type: "string", format: "date-time" },
           updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      StudentProfile: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          displayName: { type: "string" },
+          avatar: { type: "string" },
+          bio: { type: "string" },
+          interests: { type: "array", items: { type: "string" } },
+          socialLinks: {
+            type: "object",
+            properties: {
+              linkedin: { type: "string" },
+              twitter: { type: "string" },
+              github: { type: "string" },
+            },
+          },
+          enrolledCoursesCount: { type: "number" },
+          completedCoursesCount: { type: "number" },
+        },
+      },
+      InstructorProfile: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          displayName: { type: "string" },
+          avatar: { type: "string" },
+          bio: { type: "string" },
+          title: { type: "string" },
+          expertise: { type: "array", items: { type: "string" } },
+          socialLinks: {
+            type: "object",
+            properties: {
+              linkedin: { type: "string" },
+              twitter: { type: "string" },
+              github: { type: "string" },
+              website: { type: "string" },
+            },
+          },
+          averageRating: { type: "number" },
+          totalStudents: { type: "number" },
+          totalCourses: { type: "number" },
         },
       },
       Course: {
@@ -147,19 +177,8 @@ const definition: OpenAPIV3.Document = {
                 type: "object",
                 properties: {
                   _id: { type: "string" },
-                  profile: {
-                    type: "object",
-                    properties: {
-                      firstName: { type: "string" },
-                      lastName: { type: "string" },
-                      displayName: { type: "string" },
-                      bio: { type: "string" },
-                      title: { type: "string" },
-                      avatar: { type: "string" },
-                      timezone: { type: "string" },
-                      language: { type: "string" },
-                    },
-                  },
+                  instructorProfile: { $ref: "#/components/schemas/InstructorProfile" },
+
                 },
               },
             ],
@@ -1366,9 +1385,22 @@ const definition: OpenAPIV3.Document = {
               schema: {
                 type: "object",
                 properties: {
-                  profile: { type: "object" },
-                  contactInfo: { type: "object" },
-                  preferences: { type: "object" },
+                  firstName: { type: "string" },
+                  lastName: { type: "string" },
+                  displayName: { type: "string" },
+                  bio: { type: "string" },
+                  title: { type: "string" },
+                  avatar: { type: "string" },
+                  preferences: {
+                    type: "object",
+                    properties: {
+                      emailNotifications: { type: "boolean" },
+                      pushNotifications: { type: "boolean" },
+                      theme: { type: "string", enum: [ "light", "dark", "auto" ] },
+                      language: { type: "string" },
+                      timezone: { type: "string" },
+                    },
+                  },
                 },
               },
             },

@@ -6,47 +6,21 @@ export interface IUser extends Document
     email: string;
     passwordHash?: string;
     roles: ('student' | 'instructor' | 'admin' | 'teaching_assistant')[];
-    avatar?: string;
-    profile: {
-        firstName: string;
-        lastName: string;
-        displayName: string;
-        avatar?: string;
-        bio?: string;
-        title?: string;
-        timezone?: string;
-        language?: string;
-        pronouns?: string;
-    };
-
-    contactInfo: {
-        phone?: string;
-        alternateEmail?: string;
-        socialLinks: {
-            linkedin?: string;
-            twitter?: string;
-            github?: string;
-        };
-    };
-    preferences: {
-        emailNotifications: boolean;
-        pushNotifications: boolean;
-        digestFrequency: 'daily' | 'weekly' | 'never';
-        theme: 'light' | 'dark' | 'auto';
-        accessibility: {
-            screenReader: boolean;
-            highContrast: boolean;
-            fontSize: 'small' | 'medium' | 'large';
-        };
-    };
     status: 'active' | 'suspended' | 'deactivated';
     emailVerified: boolean;
     verificationToken?: string;
     verificationTokenExpires?: Date;
     passwordResetToken?: string;
-    signInMethod: 'email' | 'google';
     passwordResetExpires?: Date;
+    signInMethod: 'email' | 'google';
     lastLogin?: Date;
+    preferences: {
+        emailNotifications: boolean;
+        pushNotifications: boolean;
+        theme: 'light' | 'dark' | 'auto';
+        language: string;
+        timezone: string;
+    };
     comparePassword(password: string): Promise<boolean>;
     createdAt: Date;
     updatedAt: Date;
@@ -62,39 +36,6 @@ const userSchema = new Schema<IUser>(
             enum: [ 'student', 'instructor', 'admin', 'teaching_assistant' ],
             default: [ 'student' ],
         },
-        avatar: String,
-        profile: {
-            firstName: { type: String, required: true },
-
-            lastName: { type: String, required: true },
-            displayName: { type: String, required: true },
-            avatar: String,
-            bio: String,
-            title: String,
-            timezone: { type: String, default: 'UTC' },
-            language: { type: String, default: 'en' },
-            pronouns: String,
-        },
-        contactInfo: {
-            phone: String,
-            alternateEmail: String,
-            socialLinks: {
-                linkedin: String,
-                twitter: String,
-                github: String,
-            },
-        },
-        preferences: {
-            emailNotifications: { type: Boolean, default: true },
-            pushNotifications: { type: Boolean, default: true },
-            digestFrequency: { type: String, enum: [ 'daily', 'weekly', 'never' ], default: 'daily' },
-            theme: { type: String, enum: [ 'light', 'dark', 'auto' ], default: 'auto' },
-            accessibility: {
-                screenReader: { type: Boolean, default: false },
-                highContrast: { type: Boolean, default: false },
-                fontSize: { type: String, enum: [ 'small', 'medium', 'large' ], default: 'medium' },
-            },
-        },
         status: {
             type: String,
             enum: [ 'active', 'suspended', 'deactivated' ],
@@ -108,11 +49,35 @@ const userSchema = new Schema<IUser>(
         passwordResetExpires: Date,
         lastLogin: Date,
         deletedAt: Date,
+        preferences: {
+            emailNotifications: { type: Boolean, default: true },
+            pushNotifications: { type: Boolean, default: true },
+            theme: { type: String, enum: [ 'light', 'dark', 'auto' ], default: 'auto' },
+            language: { type: String, default: 'en' },
+            timezone: { type: String, default: 'UTC' },
+        },
     },
     {
         timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 );
+
+// Virtual relationships to profiles
+userSchema.virtual('studentProfile', {
+    ref: 'StudentProfile',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true
+});
+
+userSchema.virtual('instructorProfile', {
+    ref: 'InstructorProfile',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true
+});
 
 // Indexes for performance
 userSchema.index({ roles: 1 });

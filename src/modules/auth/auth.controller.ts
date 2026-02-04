@@ -173,10 +173,12 @@ export class AuthController
             const user = await UserService.createUser({
                 email,
                 passwordHash: password,
-                profile: { firstName, lastName, displayName },
+                firstName,
+                lastName,
+                displayName,
                 verificationToken: hashToken(verificationToken),
                 verificationTokenExpires,
-                roles,
+                roles: roles || [ 'student' ],
             });
 
             // If user is an instructor, create a default certificate template
