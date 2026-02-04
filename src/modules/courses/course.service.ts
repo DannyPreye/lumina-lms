@@ -8,6 +8,27 @@ import slugify from 'slugify';
 
 export class CourseService
 {
+    private static async recalculateDurations(courseId: string, moduleId: string)
+    {
+        // Calculate total module duration from lessons
+        const lessons = await Lesson.find({ moduleId });
+        const moduleDuration = lessons.reduce((acc, curr) => acc + (curr.estimatedDuration || 0), 0);
+
+        await Module.findByIdAndUpdate(moduleId, { $set: { estimatedDuration: moduleDuration } });
+
+        // Calculate total course duration (in hours) from all modules
+        const modules = await Module.find({ courseId });
+        const totalDurationMinutes = modules.reduce((acc, curr) => acc + (curr.estimatedDuration || 0), 0);
+        const estimatedHours = Math.round((totalDurationMinutes / 60) * 10) / 10; // Round to 1 decimal place
+
+        await Course.findByIdAndUpdate(courseId, {
+            $set: {
+                'metadata.estimatedHours': estimatedHours,
+                'metadata.lastUpdated': new Date()
+            }
+        });
+    }
+
     static async listInstructorCourses(instructorId: string, query: any)
     {
         const {
@@ -94,6 +115,8 @@ export class CourseService
         await Course.findByIdAndUpdate(courseId, {
             $set: { 'metadata.totalLessons': totalLessons, 'metadata.lastUpdated': new Date() }
         });
+
+        await this.recalculateDurations(courseId, moduleId);
         return lesson;
     }
 
@@ -245,6 +268,13 @@ export class CourseService
             }
         });
 
+        // Recalculate course duration after module deletion (module has no lessons anymore in DB, so we pass any valid module id or handle it in course total)
+        // Since the module is deleted, we just need to update the course total.
+        const allModules = await Module.find({ courseId });
+        const totalDurationMinutes = allModules.reduce((acc, curr) => acc + (curr.estimatedDuration || 0), 0);
+        const estimatedHours = Math.round((totalDurationMinutes / 60) * 10) / 10;
+        await Course.findByIdAndUpdate(courseId, { $set: { 'metadata.estimatedHours': estimatedHours } });
+
         return module;
     }
 
@@ -256,6 +286,8 @@ export class CourseService
 
         const lesson = await Lesson.findOneAndUpdate({ _id: lessonId, moduleId, courseId }, { $set: updateData }, { new: true });
         if (!lesson) throw createError(404, 'Lesson not found');
+
+        await this.recalculateDurations(courseId, moduleId);
         return lesson;
     }
 
@@ -274,6 +306,7 @@ export class CourseService
             $set: { 'metadata.totalLessons': totalLessons, 'metadata.lastUpdated': new Date() }
         });
 
+        await this.recalculateDurations(courseId, moduleId);
         return lesson;
     }
 
