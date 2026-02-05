@@ -54,6 +54,8 @@ export interface ICourse extends Document
         totalQuizzes: number;
         totalAssignments: number;
         totalStudents: number;
+        averageRating: number;
+        totalReviews: number;
         lastUpdated: Date;
         version: string;
     };
@@ -121,6 +123,8 @@ const courseSchema = new Schema<ICourse>(
             totalQuizzes: { type: Number, default: 0 },
             totalAssignments: { type: Number, default: 0 },
             totalStudents: { type: Number, default: 0 },
+            averageRating: { type: Number, default: 0 },
+            totalReviews: { type: Number, default: 0 },
             lastUpdated: { type: Date, default: Date.now },
             version: { type: String, default: '1.0.0' },
         },

@@ -45,6 +45,17 @@ export class SystemAdminController
         }
     }
 
+    static async listCourseReviews(req: Request, res: Response, next: NextFunction)
+    {
+        try {
+            const { courseId } = req.params;
+            const result = await SystemAdminService.getCourseReviews(courseId as string, req.query);
+            res.json({ success: true, ...result });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // Announcements
     static async postAnnouncement(req: AuthRequest, res: Response, next: NextFunction)
     {

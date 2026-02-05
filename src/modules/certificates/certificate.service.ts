@@ -24,8 +24,11 @@ export class CertificateService
 
     static async generateCertificate(studentId: string, courseId: string, templateId: string)
     {
-        const student = await User.findById(studentId);
-        const course = await Course.findById(courseId).populate('instructorId');
+        const student = await User.findById(studentId).populate('studentProfile');
+        const course = await Course.findById(courseId).populate({
+            path: 'instructorId',
+            populate: { path: 'instructorProfile' }
+        });
 
         if (!student || !course) throw createError(404, 'Student or Course not found');
 
@@ -36,8 +39,9 @@ export class CertificateService
         const certificateId = `CERT-${new Date().getFullYear()}-${uuidv4().split('-')[ 0 ].toUpperCase()}`;
 
         // Flatten instructor name safely
-        const instructorName = (course as any).instructorId ?
-            `${(course as any).instructorId.firstName} ${(course as any).instructorId.lastName}` :
+        const instructor = (course as any).instructorId;
+        const instructorName = instructor?.instructorProfile ?
+            `${instructor.instructorProfile.firstName} ${instructor.instructorProfile.lastName}` :
             'Instructor';
 
         return await Certificate.create({
@@ -46,7 +50,9 @@ export class CertificateService
             student: studentId,
             course: courseId,
             metadata: {
-                studentName: `${student.profile?.firstName} ${student.profile?.lastName}`,
+                studentName: (student as any).studentProfile ?
+                    `${(student as any).studentProfile.firstName} ${(student as any).studentProfile.lastName}` :
+                    'Student',
                 courseName: course.title,
                 instructorName: instructorName,
                 completionDate: new Date(),
@@ -67,7 +73,11 @@ export class CertificateService
     static async verifyCertificate(certificateId: string)
     {
         const certificate = await Certificate.findOne({ certificateId, isValid: true })
-            .populate('student', 'profile')
+            .populate({
+                path: 'student',
+                select: 'email',
+                populate: { path: 'studentProfile' }
+            })
             .populate('course', 'title')
             .populate('template');
 

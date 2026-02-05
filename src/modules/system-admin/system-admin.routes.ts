@@ -8,6 +8,7 @@ const router = Router();
 router.get('/categories', SystemAdminController.listCategories as any);
 router.get('/announcements', SystemAdminController.getAnnouncements as any);
 router.post('/reviews', protect, SystemAdminController.postReview as any);
+router.get('/reviews/:courseId', SystemAdminController.listCourseReviews as any);
 
 // --- ADMIN CONTROL ROUTES ---
 router.post(

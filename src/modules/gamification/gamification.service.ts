@@ -128,7 +128,11 @@ export class GamificationService
     {
         const query: any = { type };
         if (courseId) query.courseId = courseId;
-        return await Leaderboard.findOne(query).sort('-createdAt').populate('rankings.userId', 'profile');
+        return await Leaderboard.findOne(query).sort('-createdAt').populate({
+            path: 'rankings.userId',
+            select: 'email',
+            populate: [ { path: 'studentProfile' }, { path: 'instructorProfile' } ]
+        });
     }
 
     static async getUserStats(userId: string)

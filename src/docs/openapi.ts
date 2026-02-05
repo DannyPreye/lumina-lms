@@ -141,6 +141,7 @@ const definition: OpenAPIV3.Document = {
         type: "object",
         properties: {
           _id: { type: "string" },
+          user: { type: "string" },
           firstName: { type: "string" },
           lastName: { type: "string" },
           displayName: { type: "string" },
@@ -160,6 +161,8 @@ const definition: OpenAPIV3.Document = {
           averageRating: { type: "number" },
           totalStudents: { type: "number" },
           totalCourses: { type: "number" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
         },
       },
       Course: {
@@ -177,13 +180,30 @@ const definition: OpenAPIV3.Document = {
                 type: "object",
                 properties: {
                   _id: { type: "string" },
+                  email: { type: "string" },
                   instructorProfile: { $ref: "#/components/schemas/InstructorProfile" },
-
+                  id: { type: "string" },
                 },
               },
             ],
           },
-          coInstructors: { type: "array", items: { type: "string" } },
+          coInstructors: {
+            type: "array",
+            items: {
+              oneOf: [
+                { type: "string" },
+                {
+                  type: "object",
+                  properties: {
+                    _id: { type: "string" },
+                    email: { type: "string" },
+                    instructorProfile: { $ref: "#/components/schemas/InstructorProfile" },
+                    id: { type: "string" },
+                  },
+                },
+              ],
+            },
+          },
           category: {
             oneOf: [
               { type: "string" },
@@ -255,7 +275,10 @@ const definition: OpenAPIV3.Document = {
               totalQuizzes: { type: "number" },
               totalAssignments: { type: "number" },
               totalStudents: { type: "number" },
+              averageRating: { type: "number" },
+              totalReviews: { type: "number" },
               version: { type: "string" },
+              lastUpdated: { type: "string", format: "date-time" },
             },
           },
           status: { type: "string", enum: [ "draft", "published", "archived" ] },
@@ -4623,6 +4646,55 @@ const definition: OpenAPIV3.Document = {
                   properties: {
                     success: { type: "boolean" },
                     data: { $ref: "#/components/schemas/Review" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/system-admin/reviews/{courseId}": {
+      get: {
+        tags: [ "Public" ],
+        summary: "Get course reviews",
+        description: "Fetch all approved reviews for a specific course.",
+        parameters: [
+          {
+            name: "courseId",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+          },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 10 },
+          },
+          {
+            name: "rating",
+            in: "query",
+            schema: { type: "integer", minimum: 1, maximum: 5 },
+          },
+        ],
+        responses: {
+          200: {
+            description: "List of reviews",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    reviews: { type: "array", items: { $ref: "#/components/schemas/Review" } },
+                    total: { type: "number" },
+                    page: { type: "number" },
+                    pages: { type: "number" },
                   },
                 },
               },

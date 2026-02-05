@@ -4,6 +4,7 @@ import { Module } from './module.model';
 import { Lesson } from './lesson.model';
 import { Enrollment } from '../enrollments/enrollment.model';
 import createError from 'http-errors';
+import { InstructorProfile } from '../users/instructor-profile.model';
 import slugify from 'slugify';
 
 export class CourseService
@@ -62,7 +63,11 @@ export class CourseService
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const courses = await Course.find(filter)
-            .populate('instructorId', 'email instructorProfile')
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)
@@ -83,15 +88,34 @@ export class CourseService
     static async createCourse(instructorId: string, courseData: any)
     {
         const slug = slugify(courseData.title, { lower: true });
-        return await Course.create({ ...courseData, instructorId, slug });
+        const course = await Course.create({ ...courseData, instructorId, slug });
+
+        // Update InstructorProfile: totalCourses
+        await InstructorProfile.findOneAndUpdate(
+            { user: instructorId },
+            { $inc: { totalCourses: 1 } },
+            { upsert: true }
+        );
+
+        return course;
     }
 
     static async getCourseBySlug(slug: string)
     {
         const decodedSlug = decodeURIComponent(slug);
         const course = await Course.findOne({ slug: decodedSlug, status: 'published' })
-            .populate('instructorId', 'email instructorProfile')
-            .populate('coInstructors', 'email instructorProfile');
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
+            .populate({
+                path: 'coInstructors',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
+            .populate("category", "name")
+            .populate("subcategory", "name");
         if (!course) throw createError(404, 'Course not found');
         return course;
     }
@@ -141,7 +165,11 @@ export class CourseService
         if (!enrollment) throw createError(403, 'You are not enrolled in this course');
 
         const course = await Course.findById(courseId)
-            .populate('instructorId', 'profile')
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .lean();
@@ -170,7 +198,11 @@ export class CourseService
             $or: [ { category: categoryId }, { subcategory: categoryId } ],
             status: 'published'
         })
-            .populate('instructorId', 'email instructorProfile')
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort('-createdAt')
@@ -182,7 +214,11 @@ export class CourseService
     {
         const filter = isAdmin ? { _id: courseId } : { _id: courseId, instructorId };
         const course = await Course.findOne(filter)
-            .populate('instructorId', 'email instructorProfile')
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
             .populate('category', 'name')
             .populate('subcategory', 'name');
         if (!course) throw createError(404, 'Course not found or you are not authorized');
@@ -231,7 +267,15 @@ export class CourseService
         await Module.deleteMany({ courseId });
         await Lesson.deleteMany({ courseId });
 
-        return await Course.findByIdAndDelete(courseId);
+        const deletedCourse = await Course.findByIdAndDelete(courseId);
+
+        // Update InstructorProfile: totalCourses
+        await InstructorProfile.findOneAndUpdate(
+            { user: instructorId },
+            { $inc: { totalCourses: -1 } }
+        );
+
+        return deletedCourse;
     }
 
     static async updateModule(courseId: string, moduleId: string, instructorId: string, updateData: any, isAdmin: boolean = false)
@@ -349,7 +393,11 @@ export class CourseService
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const courses = await Course.find(filter)
-            .populate('instructorId', 'email instructorProfile')
+            .populate({
+                path: 'instructorId',
+                select: 'email',
+                populate: { path: 'instructorProfile' }
+            })
             .populate('category', 'name')
             .populate('subcategory', 'name')
             .sort(sort as string)

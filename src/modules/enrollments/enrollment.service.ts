@@ -1,5 +1,7 @@
 import { Enrollment, IEnrollment } from './enrollment.model';
 import { Course } from '../courses/course.model';
+import { InstructorProfile } from '../users/instructor-profile.model';
+import { StudentProfile } from '../users/student-profile.model';
 import createError from 'http-errors';
 import { Types } from 'mongoose';
 import { GamificationService } from '../gamification/gamification.service';
@@ -35,6 +37,20 @@ export class EnrollmentService
         course.metadata.totalStudents += 1;
         await course.save();
 
+        // Update InstructorProfile: totalStudents
+        await InstructorProfile.findOneAndUpdate(
+            { user: course.instructorId },
+            { $inc: { totalStudents: 1 } },
+            { upsert: true }
+        );
+
+        // Update StudentProfile: enrolledCoursesCount
+        await StudentProfile.findOneAndUpdate(
+            { user: userId },
+            { $inc: { enrolledCoursesCount: 1 } },
+            { upsert: true }
+        );
+
         return enrollment;
     }
 
@@ -64,7 +80,11 @@ export class EnrollmentService
             .populate({
                 path: 'courseId',
                 select: 'title thumbnail shortDescription slug category subcategory',
-                populate: { path: 'instructorId', select: 'profile' }
+                populate: {
+                    path: 'instructorId',
+                    select: 'email',
+                    populate: { path: 'instructorProfile' }
+                }
             })
             .sort(sort as string)
             .skip(skip)

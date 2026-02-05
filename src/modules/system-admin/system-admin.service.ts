@@ -6,6 +6,8 @@ import { Types } from 'mongoose';
 import slugify from 'slugify';
 import { NotificationService } from '../notifications/notification.service';
 import { User } from '../users/user.model';
+import { Course } from '../courses/course.model';
+import { InstructorProfile } from '../users/instructor-profile.model';
 
 export class SystemAdminService
 {
@@ -57,9 +59,71 @@ export class SystemAdminService
     // Reviews
     static async addReview(userId: string, data: any)
     {
-        const review = await Review.create({ ...data, userId });
-        // In a real app, update course average rating here
+        const { courseId, rating } = data;
+        const review = await Review.create({ ...data, userId, status: 'approved' });
+
+        // Update Course Average Rating
+        const courseReviews = await Review.find({ courseId, status: 'approved' });
+        const totalReviews = courseReviews.length;
+        const avgRating = courseReviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews;
+
+        const course = await Course.findByIdAndUpdate(courseId, {
+            $set: {
+                'metadata.averageRating': Math.round(avgRating * 10) / 10,
+                'metadata.totalReviews': totalReviews
+            }
+        }, { new: true });
+
+        if (course) {
+            // Update Instructor Average Rating
+            // Get all courses by this instructor
+            const instructorCourses = await Course.find({ instructorId: course.instructorId });
+            const instructorCourseIds = instructorCourses.map(c => c._id);
+
+            const allInstructorReviews = await Review.find({
+                courseId: { $in: instructorCourseIds },
+                status: 'approved'
+            });
+
+            if (allInstructorReviews.length > 0) {
+                const instructorAvgRating = allInstructorReviews.reduce((acc, curr) => acc + curr.rating, 0) / allInstructorReviews.length;
+                await InstructorProfile.findOneAndUpdate(
+                    { user: course.instructorId },
+                    { $set: { averageRating: Math.round(instructorAvgRating * 10) / 10 } },
+                    { upsert: true }
+                );
+            }
+        }
+
         return review;
+    }
+
+    static async getCourseReviews(courseId: string, query: any = {})
+    {
+        const { page = 1, limit = 10, rating } = query;
+        const filter: any = { courseId, status: 'approved' };
+        if (rating) filter.rating = Number(rating);
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const reviews = await Review.find(filter)
+            .populate({
+                path: 'userId',
+                select: 'email',
+                populate: [ { path: 'studentProfile' }, { path: 'instructorProfile' } ]
+            })
+            .sort('-createdAt')
+            .skip(skip)
+            .limit(Number(limit));
+
+        const total = await Review.countDocuments(filter);
+
+        return {
+            reviews,
+            total,
+            page: Number(page),
+            pages: Math.ceil(total / Number(limit))
+        };
     }
 
     // Transactions

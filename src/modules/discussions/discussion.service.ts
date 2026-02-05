@@ -46,7 +46,11 @@ export class DiscussionService
         const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
 
         const discussions = await Discussion.find(query)
-            .populate('authorId', 'email instructorProfile studentProfile')
+            .populate({
+                path: 'authorId',
+                select: 'email',
+                populate: [ { path: 'studentProfile' }, { path: 'instructorProfile' } ]
+            })
             .sort(sortBy === 'popular' ? '-upvotes' : '-createdAt')
             .skip(skip)
             .limit(parseInt(limit as string));
@@ -64,8 +68,16 @@ export class DiscussionService
     static async getDiscussionById(discussionId: string)
     {
         const discussion = await Discussion.findById(discussionId)
-            .populate('authorId', 'email instructorProfile studentProfile')
-            .populate('replies.authorId', 'email instructorProfile studentProfile');
+            .populate({
+                path: 'authorId',
+                select: 'email',
+                populate: [ { path: 'studentProfile' }, { path: 'instructorProfile' } ]
+            })
+            .populate({
+                path: 'replies.authorId',
+                select: 'email',
+                populate: [ { path: 'studentProfile' }, { path: 'instructorProfile' } ]
+            });
 
         if (!discussion || discussion.deletedAt) {
             throw createError(404, 'Discussion not found');
