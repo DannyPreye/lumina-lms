@@ -174,4 +174,27 @@ export class UserService
             passwordResetExpires: { $gt: new Date() }
         }).select('+passwordHash');
     }
+
+    static async changePassword(userId: string, currentPassword: string, newPassword: string)
+    {
+        const user = await User.findById(userId).select('+passwordHash');
+        if (!user) {
+            throw createError(404, 'User not found');
+        }
+
+        // Only allow password change if the user has an existing password (not just Google Auth)
+        if (!user.passwordHash && user.signInMethod === 'google') {
+            throw createError(400, 'Social login users cannot change password this way. Set a password via forgot password first.');
+        }
+
+        // Check if current password is correct
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            throw createError(401, 'Invalid current password');
+        }
+
+        // Update password (pre-save hook will hash it)
+        user.passwordHash = newPassword;
+        await user.save();
+    }
 }

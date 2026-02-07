@@ -6,6 +6,7 @@ import { Enrollment } from '../enrollments/enrollment.model';
 import createError from 'http-errors';
 import { InstructorProfile } from '../users/instructor-profile.model';
 import slugify from 'slugify';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 export class CourseService
 {
@@ -117,6 +118,10 @@ export class CourseService
             .populate("category", "name")
             .populate("subcategory", "name");
         if (!course) throw createError(404, 'Course not found');
+
+        // --- INTER-MODULE CONNECTION: Analytics ---
+        await AnalyticsService.trackCourseMetric(course._id.toString(), 'engagement', 'courseViews', 1);
+
         return course;
     }
 

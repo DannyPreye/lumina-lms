@@ -13,6 +13,7 @@ export interface ILearningAnalytics extends Document
         discussionPosts: number;
         videosWatched: number;
         resourcesDownloaded: number;
+        reviewsWritten: number;
     };
     engagement: {
         loginCount: number;
@@ -45,6 +46,7 @@ const learningAnalyticsSchema = new Schema<ILearningAnalytics>(
             discussionPosts: { type: Number, default: 0 },
             videosWatched: { type: Number, default: 0 },
             resourcesDownloaded: { type: Number, default: 0 },
+            reviewsWritten: { type: Number, default: 0 },
         },
         engagement: {
             loginCount: { type: Number, default: 0 },

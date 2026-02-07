@@ -15,6 +15,21 @@ export class AssessmentController
         }
     }
 
+    static async getQuizzes(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { courseId, moduleId, lessonId } = req.query;
+            const quizzes = await AssessmentService.getQuizzes({
+                courseId: courseId as string,
+                moduleId: moduleId as string,
+                lessonId: lessonId as string,
+            });
+            res.json({ success: true, data: quizzes });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async addQuestion(req: AuthRequest, res: Response, next: NextFunction)
     {
         try {
@@ -75,6 +90,21 @@ export class AssessmentController
         try {
             const assignment = await AssessmentService.createAssignment(req.body);
             res.status(201).json({ success: true, data: assignment });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getAssignments(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { courseId, moduleId, lessonId } = req.query;
+            const assignments = await AssessmentService.getAssignments({
+                courseId: courseId as string,
+                moduleId: moduleId as string,
+                lessonId: lessonId as string,
+            });
+            res.json({ success: true, data: assignments });
         } catch (error) {
             next(error);
         }

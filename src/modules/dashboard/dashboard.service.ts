@@ -79,11 +79,16 @@ class DashboardService
             {
                 // Get analytics (weekly)
                 const analytics = await AnalyticsService.getCourseReport(course._id.toString(), 'weekly');
-                // Fallbacks if analytics missing
-                const students = analytics?.enrollment?.total || 0;
+
+                // Fallbacks and more accurate data sources
+                // Use course metadata for totals if available, otherwise analytics
+                const students = course.metadata?.totalStudents || analytics?.enrollment?.total || 0;
+                const avgRating = course.metadata?.averageRating || analytics?.reviews?.averageRating || 0;
+
+                // For views, courseViews is a better metric than dailyActiveUsers
+                const views = analytics?.engagement?.courseViews || analytics?.engagement?.dailyActiveUsers || 0;
                 const completionRate = analytics?.engagement?.completionRate || 0;
-                const avgRating = analytics?.performance?.averageQuizScore || 0; // You may want to use a different metric if available
-                const views = analytics?.engagement?.dailyActiveUsers || 0;
+
                 return {
                     courseId: course._id.toString(),
                     courseName: course.title,

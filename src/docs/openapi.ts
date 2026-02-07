@@ -581,6 +581,15 @@ const definition: OpenAPIV3.Document = {
               discussionPosts: { type: "number" },
             },
           },
+          engagement: {
+            type: "object",
+            properties: {
+              activeMinutes: { type: "number" },
+              completedLessons: { type: "number" },
+              lastSeen: { type: "string", format: "date-time" },
+              completionRate: { type: "number" },
+            },
+          },
           performance: {
             type: "object",
             properties: {
@@ -608,8 +617,10 @@ const definition: OpenAPIV3.Document = {
             type: "object",
             properties: {
               total: { type: "number" },
+              new: { type: "number" },
               active: { type: "number" },
               completed: { type: "number" },
+              dropped: { type: "number" },
             },
           },
           engagement: {
@@ -617,6 +628,47 @@ const definition: OpenAPIV3.Document = {
             properties: {
               averageTimeSpent: { type: "number" },
               completionRate: { type: "number" },
+              averageProgress: { type: "number" },
+              dailyActiveUsers: { type: "number" },
+              courseViews: { type: "number" },
+            },
+          },
+          performance: {
+            type: "object",
+            properties: {
+              averageQuizScore: { type: "number" },
+              averageAssignmentScore: { type: "number" },
+              passRate: { type: "number" },
+            },
+          },
+          reviews: {
+            type: "object",
+            properties: {
+              total: { type: "number" },
+              new: { type: "number" },
+              averageRating: { type: "number" },
+            },
+          },
+          content: {
+            type: "object",
+            properties: {
+              mostViewedLessons: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    lessonId: { type: "string" },
+                    views: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+          revenue: {
+            type: "object",
+            properties: {
+              totalRevenue: { type: "number" },
+              averageRevenuePerStudent: { type: "number" },
             },
           },
         },
@@ -732,6 +784,8 @@ const definition: OpenAPIV3.Document = {
         properties: {
           _id: { type: "string" },
           courseId: { type: "string" },
+          moduleId: { type: "string" },
+          lessonId: { type: "string" },
           authorId: { type: "string" },
           title: { type: "string" },
           content: { type: "string" },
@@ -1483,6 +1537,47 @@ const definition: OpenAPIV3.Document = {
               },
             },
           },
+        },
+      },
+    },
+    "/users/change-password": {
+      post: {
+        tags: [ "User" ],
+        summary: "Change user password",
+        description: "Authenticated users can change their password by providing the current and new passwords.",
+        security: [ { bearerAuth: [] } ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "currentPassword", "newPassword" ],
+                properties: {
+                  currentPassword: { type: "string" },
+                  newPassword: { type: "string", minLength: 8 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Password changed successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
         },
       },
     },
@@ -2729,6 +2824,48 @@ const definition: OpenAPIV3.Document = {
     // ASSESSMENTS MODULE
     // ==========================================
     "/assessments/quizzes": {
+      get: {
+        tags: [ "Student", "Instructor" ],
+        summary: "List quizzes",
+        description: "Retrieve quizzes with optional filtering by course, module, or lesson.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "courseId",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "moduleId",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "lessonId",
+            in: "query",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "List of quizzes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    data: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Quiz" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       post: {
         tags: [ "Instructor" ],
         summary: "Create a new quiz",
@@ -2742,6 +2879,8 @@ const definition: OpenAPIV3.Document = {
                 required: [ "courseId", "title" ],
                 properties: {
                   courseId: { type: "string" },
+                  moduleId: { type: "string", description: "Optional: Link assignment to a specific module" },
+                  lessonId: { type: "string", description: "Optional: Link assessment to a specific lesson" },
                   title: { type: "string" },
                   description: { type: "string" },
                   type: {
@@ -2983,6 +3122,48 @@ const definition: OpenAPIV3.Document = {
       },
     },
     "/assessments/assignments": {
+      get: {
+        tags: [ "Student", "Instructor" ],
+        summary: "List assignments",
+        description: "Retrieve assignments with optional filtering by course, module, or lesson.",
+        security: [ { bearerAuth: [] } ],
+        parameters: [
+          {
+            name: "courseId",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "moduleId",
+            in: "query",
+            schema: { type: "string" },
+          },
+          {
+            name: "lessonId",
+            in: "query",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          200: {
+            description: "List of assignments",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    data: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Assignment" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       post: {
         tags: [ "Instructor" ],
         summary: "Create a new assignment",
@@ -3086,7 +3267,7 @@ const definition: OpenAPIV3.Document = {
     // ==========================================
     "/discussions": {
       post: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Create a discussion thread",
         description:
           "Initializes a new discussion thread in a specific course or lesson.",
@@ -3130,7 +3311,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/course/{courseId}": {
       get: {
-        tags: [ "Public" ],
+        tags: [ "Public", "Student", "Instructor" ],
         summary: "List course discussions",
         description:
           "Returns a paginated list of discussion threads associated with a specific course. Supports filtering by type, tag, and keyword search.",
@@ -3204,7 +3385,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}": {
       get: {
-        tags: [ "Public" ],
+        tags: [ "Public", "Student", "Instructor" ],
         summary: "Get discussion details",
         description: "Returns a full discussion thread including all replies.",
         parameters: [
@@ -3313,7 +3494,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/vote": {
       post: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Vote on a discussion",
         description: "Cast an upvote or downvote on a discussion thread.",
         security: [ { bearerAuth: [] } ],
@@ -3342,7 +3523,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/replies": {
       post: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Add a reply to a discussion",
         security: [ { bearerAuth: [] } ],
         parameters: [
@@ -3373,7 +3554,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/replies/{replyId}/vote": {
       post: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Vote on a reply",
         description: "Cast an upvote or downvote on a specific reply.",
         security: [ { bearerAuth: [] } ],
@@ -3408,7 +3589,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/replies/{replyId}": {
       patch: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Update a reply",
         security: [ { bearerAuth: [] } ],
         parameters: [
@@ -3440,7 +3621,7 @@ const definition: OpenAPIV3.Document = {
         responses: { 200: { description: "Reply updated" } },
       },
       delete: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Delete a reply",
         security: [ { bearerAuth: [] } ],
         parameters: [
@@ -3462,7 +3643,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/discussions/{id}/accept-answer": {
       post: {
-        tags: [ "Student" ],
+        tags: [ "Student", "Instructor" ],
         summary: "Accept an answer",
         description:
           "Marks a specific reply as the accepted answer for a Q&A style discussion.",
@@ -4339,7 +4520,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/analytics/course-stats/{courseId}": {
       get: {
-        tags: [ "Instructor" ],
+        tags: [ "Instructor", "Admin" ],
         summary: "Course-wide analytics report",
         description:
           "Returns aggregated course statistics for a set period (daily, weekly, or monthly).",
@@ -4381,7 +4562,7 @@ const definition: OpenAPIV3.Document = {
     },
     "/analytics/course-stats/{courseId}/refresh": {
       post: {
-        tags: [ "Instructor" ],
+        tags: [ "Instructor", "Admin" ],
         summary: "Refresh course analytics",
         description:
           "Manually triggers a new sync/recalculation of course-wide analytics data.",

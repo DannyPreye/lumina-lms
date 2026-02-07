@@ -51,6 +51,9 @@ export class EnrollmentService
             { upsert: true }
         );
 
+        // --- INTER-MODULE CONNECTION: Analytics ---
+        await AnalyticsService.trackCourseMetric(courseId, 'enrollment', 'new', 1);
+
         return enrollment;
     }
 
@@ -154,6 +157,9 @@ export class EnrollmentService
             // --- INTER-MODULE CONNECTION: Gamification ---
             // Award trophy for course completion
             await GamificationService.awardAchievement(userId, 'course_complete_placeholder', courseId);
+
+            // --- INTER-MODULE CONNECTION: Analytics ---
+            await AnalyticsService.trackCourseMetric(courseId, 'enrollment', 'completed', 1);
         }
 
         enrollment.lastAccessedAt = new Date();

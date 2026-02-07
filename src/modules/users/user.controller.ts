@@ -53,7 +53,7 @@ export class UserController
     }
 
     static async getAllUsers(req: Request, res: Response, next: NextFunction)
-{
+    {
         try {
             const { page, limit, status, role } = req.query;
             const query: any = {};
@@ -130,6 +130,31 @@ export class UserController
             res.json({
                 success: true,
                 message: 'User deleted successfully',
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async changePassword(req: Request, res: Response, next: NextFunction)
+    {
+        try {
+            const userId = (req as any).user.id;
+            const { currentPassword, newPassword } = req.body;
+
+            if (!currentPassword || !newPassword) {
+                throw createError(400, 'Current and new passwords are required');
+            }
+
+            if (newPassword.length < 8) {
+                throw createError(400, 'New password must be at least 8 characters long');
+            }
+
+            await UserService.changePassword(userId, currentPassword, newPassword);
+
+            res.json({
+                success: true,
+                message: 'Password changed successfully',
             });
         } catch (error) {
             next(error);

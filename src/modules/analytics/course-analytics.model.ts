@@ -18,11 +18,17 @@ export interface ICourseAnalytics extends Document
         completionRate: number;
         averageProgress: number;
         dailyActiveUsers: number;
+        courseViews: number;
     };
     performance: {
         averageQuizScore: number;
         averageAssignmentScore: number;
         passRate: number;
+    };
+    reviews: {
+        total: number;
+        new: number;
+        averageRating: number;
     };
     content: {
         mostViewedLessons: {
@@ -59,11 +65,17 @@ const courseAnalyticsSchema = new Schema<ICourseAnalytics>(
             completionRate: { type: Number, default: 0 },
             averageProgress: { type: Number, default: 0 },
             dailyActiveUsers: { type: Number, default: 0 },
+            courseViews: { type: Number, default: 0 },
         },
         performance: {
             averageQuizScore: { type: Number, default: 0 },
             averageAssignmentScore: { type: Number, default: 0 },
             passRate: { type: Number, default: 0 },
+        },
+        reviews: {
+            total: { type: Number, default: 0 },
+            new: { type: Number, default: 0 },
+            averageRating: { type: Number, default: 0 },
         },
         content: {
             mostViewedLessons: [

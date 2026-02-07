@@ -8,6 +8,7 @@ import { NotificationService } from '../notifications/notification.service';
 import { User } from '../users/user.model';
 import { Course } from '../courses/course.model';
 import { InstructorProfile } from '../users/instructor-profile.model';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 export class SystemAdminService
 {
@@ -94,6 +95,10 @@ export class SystemAdminService
                 );
             }
         }
+
+        // --- INTER-MODULE CONNECTION: Analytics ---
+        await AnalyticsService.trackCourseMetric(courseId, 'reviews', 'new', 1);
+        await AnalyticsService.trackActivity(userId, courseId, 'reviewsWritten', 1);
 
         return review;
     }

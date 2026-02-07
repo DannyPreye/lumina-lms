@@ -8,6 +8,7 @@ const router = Router();
 router.get('/profile', protect, UserController.getProfile);
 router.patch('/profile', protect, UserController.updateProfile);
 router.patch('/avatar', protect, UserController.updateAvatar);
+router.post('/change-password', protect, UserController.changePassword);
 
 
 // Admin Routes (Protected & Restricted to Admin)

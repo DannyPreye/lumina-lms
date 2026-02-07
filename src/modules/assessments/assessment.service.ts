@@ -56,6 +56,16 @@ export class AssessmentService
         return { quiz, questions };
     }
 
+    static async getQuizzes(filters: { courseId?: string; moduleId?: string; lessonId?: string; })
+    {
+        const query: any = {};
+        if (filters.courseId) query.courseId = filters.courseId;
+        if (filters.moduleId) query.moduleId = filters.moduleId;
+        if (filters.lessonId) query.lessonId = filters.lessonId;
+
+        return await Quiz.find(query).sort('createdAt');
+    }
+
     static async publishQuiz(quizId: string)
     {
         return await Quiz.findByIdAndUpdate(quizId, { status: 'published' }, { new: true });
@@ -153,6 +163,16 @@ export class AssessmentService
     static async createAssignment(assignmentData: any)
     {
         return await Assignment.create(assignmentData);
+    }
+
+    static async getAssignments(filters: { courseId?: string; moduleId?: string; lessonId?: string; })
+    {
+        const query: any = {};
+        if (filters.courseId) query.courseId = filters.courseId;
+        if (filters.moduleId) query.moduleId = filters.moduleId;
+        if (filters.lessonId) query.lessonId = filters.lessonId;
+
+        return await Assignment.find(query).sort('createdAt');
     }
 
     static async submitAssignment(userId: string, assignmentId: string, content: any)

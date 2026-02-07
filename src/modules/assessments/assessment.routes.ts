@@ -6,6 +6,7 @@ const router = Router();
 
 // --- QUIZZES ---
 // Student: View quiz (answers stripped)
+router.get('/quizzes', protect, AssessmentController.getQuizzes as any);
 router.get('/quizzes/:quizId', protect, AssessmentController.getQuiz as any);
 
 // Instructor: Manage quizzes
@@ -40,8 +41,12 @@ router.post(
     '/assignments',
     protect,
     authorize('instructor', 'admin'),
+    authorize('instructor', 'admin'),
     AssessmentController.createAssignment as any
 );
+
+// Student: List assignments
+router.get('/assignments', protect, AssessmentController.getAssignments as any);
 
 // Student: Submit assignment
 router.post(

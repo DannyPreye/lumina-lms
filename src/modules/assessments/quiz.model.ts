@@ -3,6 +3,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 export interface IQuiz extends Document
 {
     courseId: Types.ObjectId;
+    moduleId?: Types.ObjectId;
     lessonId?: Types.ObjectId;
     title: string;
     description: string;
@@ -37,6 +38,7 @@ export interface IQuiz extends Document
 const quizSchema = new Schema<IQuiz>(
     {
         courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+        moduleId: { type: Schema.Types.ObjectId, ref: 'Module' },
         lessonId: { type: Schema.Types.ObjectId, ref: 'Lesson' },
         title: { type: String, required: true },
         description: String,
