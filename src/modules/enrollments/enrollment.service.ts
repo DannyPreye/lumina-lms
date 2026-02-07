@@ -113,53 +113,93 @@ export class EnrollmentService
 
     static async markLessonAsComplete(userId: string, courseId: string, lessonId: string)
     {
+        return await this.updateProgress(userId, courseId, lessonId, { status: 'completed' });
+    }
+
+    static async updateProgress(
+        userId: string,
+        courseId: string,
+        lessonId: string,
+        data: { status?: 'not_started' | 'in_progress' | 'completed'; timeSpent?: number; totalDuration?: number; }
+    )
+    {
         const enrollment = await Enrollment.findOne({ userId, courseId });
         if (!enrollment) throw createError(404, 'Enrollment not found');
 
         const lessonObjectId = new Types.ObjectId(lessonId);
 
-        if (enrollment.progress.completedLessons.includes(lessonObjectId)) {
-            return enrollment;
-        }
+        // Find existing progress entry for this lesson
+        let lessonProgress = enrollment.progress.lessonsProgress.find(lp => lp.lessonId.toString() === lessonId);
 
-        enrollment.progress.completedLessons.push(lessonObjectId);
-
-        // --- INTER-MODULE CONNECTION: Gamification ---
-        // Award 50 points for every lesson completed
-        await GamificationService.addPoints(userId, 50, 'lesson_complete', lessonId);
-
-        // --- INTER-MODULE CONNECTION: Analytics ---
-        // Track the lesson view metric
-        await AnalyticsService.trackActivity(userId, courseId, 'lessonsViewed', 1);
-
-        // Simple calculation for percentage
-        const course = await Course.findById(courseId);
-        if (course && course.metadata.totalLessons > 0) {
-            enrollment.progress.percentComplete = Math.round(
-                (enrollment.progress.completedLessons.length / course.metadata.totalLessons) * 100
-            );
-        }
-
-        if (enrollment.progress.percentComplete === 100) {
-            enrollment.status = 'completed';
-            enrollment.completedAt = new Date();
-
-            // --- INTER-MODULE CONNECTION: Certificates ---
-            // Automatically issue a certificate upon passing
-            if (course && course.certification.provided && course.certification.certificateTemplateId) {
-                await CertificateService.generateCertificate(
-                    userId,
-                    courseId,
-                    course.certification.certificateTemplateId.toString()
-                );
+        if (!lessonProgress) {
+            // Create new entry
+            enrollment.progress.lessonsProgress.push({
+                lessonId: lessonObjectId,
+                status: data.status || 'in_progress',
+                timeSpent: data.timeSpent || 0,
+                lastAccessedAt: new Date(),
+                completedAt: data.status === 'completed' ? new Date() : undefined
+            });
+            lessonProgress = enrollment.progress.lessonsProgress[ enrollment.progress.lessonsProgress.length - 1 ];
+        } else {
+            // Update existing entry
+            if (data.status) lessonProgress.status = data.status;
+            if (data.timeSpent) {
+                // Accumulate time spent
+                lessonProgress.timeSpent += data.timeSpent;
+                enrollment.totalTimeSpent += data.timeSpent;
             }
+            lessonProgress.lastAccessedAt = new Date();
+            if (data.status === 'completed' && !lessonProgress.completedAt) {
+                lessonProgress.completedAt = new Date();
+            }
+        }
 
-            // --- INTER-MODULE CONNECTION: Gamification ---
-            // Award trophy for course completion
-            await GamificationService.awardAchievement(userId, 'course_complete_placeholder', courseId);
+        // --- Recalculate Course Completion ---
+        if (data.status === 'completed') {
+            // Add to completedLessons if not already there
+            const alreadyCompleted = enrollment.progress.completedLessons.some(id => id.toString() === lessonId);
+            if (!alreadyCompleted) {
+                enrollment.progress.completedLessons.push(lessonObjectId);
 
-            // --- INTER-MODULE CONNECTION: Analytics ---
-            await AnalyticsService.trackCourseMetric(courseId, 'enrollment', 'completed', 1);
+                // --- INTER-MODULE CONNECTION: Gamification ---
+                await GamificationService.addPoints(userId, 10, 'lesson_complete', lessonId); // Reduced points for granular updates
+
+                // --- INTER-MODULE CONNECTION: Analytics ---
+                await AnalyticsService.trackActivity(userId, courseId, 'lessonsViewed', 1);
+            }
+        }
+
+        const course = await Course.findById(courseId);
+        if (course) {
+            // Update percentComplete
+            const totalLessons = course.metadata.totalLessons || 1; // Avoid division by zero
+            enrollment.progress.percentComplete = Math.round(
+                (enrollment.progress.completedLessons.length / totalLessons) * 100
+            );
+
+            // Check for Course Completion
+            if (enrollment.progress.percentComplete >= 100 && enrollment.status !== 'completed') {
+                enrollment.status = 'completed';
+                enrollment.completedAt = new Date();
+
+                // --- INTER-MODULE CONNECTION: Certificates ---
+                if (course.certification.provided && course.certification.certificateTemplateId) {
+                    await CertificateService.generateCertificate(userId, courseId, course.certification.certificateTemplateId.toString());
+                }
+
+                // --- INTER-MODULE CONNECTION: Gamification ---
+                await GamificationService.awardAchievement(userId, 'course_complete_placeholder', courseId);
+
+                // --- INTER-MODULE CONNECTION: Analytics ---
+                await AnalyticsService.trackCourseMetric(courseId, 'enrollment', 'completed', 1);
+            }
+        }
+
+        // Update user's total active minutes in LearningAnalytics
+        if (data.timeSpent) {
+            // We can fire-and-forget this or await it
+            AnalyticsService.trackActivity(userId, courseId, 'timeSpent', data.timeSpent);
         }
 
         enrollment.lastAccessedAt = new Date();

@@ -10,5 +10,6 @@ router.post('/enroll', EnrollmentController.enroll as any);
 router.get('/my-courses', EnrollmentController.getMyCourses as any);
 router.get('/:courseId/progress', EnrollmentController.getProgress as any);
 router.post('/:courseId/complete-lesson', EnrollmentController.markComplete as any);
+router.post('/:courseId/update-progress', EnrollmentController.updateProgress as any);
 
 export default router;

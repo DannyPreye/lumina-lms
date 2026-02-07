@@ -2819,6 +2819,31 @@ const definition: OpenAPIV3.Document = {
         },
       },
     },
+    "/enrollments/{courseId}/update-progress": {
+      post: {
+        tags: [ "Student" ],
+        summary: "Update detailed lesson progress (time, status)",
+        security: [ { bearerAuth: [] } ],
+        parameters: [ { name: "courseId", in: "path", required: true, schema: { type: "string" } } ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [ "lessonId" ],
+                properties: {
+                  lessonId: { type: "string" },
+                  status: { type: "string", enum: [ "not_started", "in_progress", "completed" ] },
+                  timeSpent: { type: "number", description: "Seconds to add" },
+                },
+              },
+            },
+          },
+        },
+        responses: { 200: { description: "Updated" } },
+      },
+    },
 
     // ==========================================
     // ASSESSMENTS MODULE
@@ -3234,8 +3259,30 @@ const definition: OpenAPIV3.Document = {
                   content: {
                     type: "object",
                     properties: {
-                      text: { type: "string" },
-                      links: { type: "array", items: { type: "string" } },
+                      text: { type: "string", description: "Essay or text response" },
+                      links: { type: "array", items: { type: "string" }, description: "External links" },
+                      files: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            filename: { type: "string" },
+                            url: { type: "string" },
+                            type: { type: "string" },
+                            size: { type: "number" },
+                          },
+                        },
+                        description: "Uploaded file attachments",
+                      },
+                      codeSubmission: {
+                        type: "object",
+                        properties: {
+                          language: { type: "string" },
+                          code: { type: "string" },
+                          repository: { type: "string" },
+                        },
+                        description: "Programming assignment submission",
+                      },
                     },
                   },
                 },

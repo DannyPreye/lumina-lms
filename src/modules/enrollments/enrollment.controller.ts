@@ -49,4 +49,20 @@ export class EnrollmentController
             next(error);
         }
     }
+
+    static async updateProgress(req: AuthRequest, res: Response, next: NextFunction)
+    {
+        try {
+            const { lessonId, status, timeSpent } = req.body;
+            const progress = await EnrollmentService.updateProgress(
+                req.user.id,
+                req.params.courseId as string,
+                lessonId,
+                { status, timeSpent }
+            );
+            res.json({ success: true, data: progress });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
