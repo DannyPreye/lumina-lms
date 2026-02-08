@@ -3,6 +3,7 @@ import createError from 'http-errors';
 import { Transaction } from '../system-admin/system-core.model';
 import { Course } from '../courses/course.model';
 import { EnrollmentService } from '../enrollments/enrollment.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 import crypto from 'crypto';
 import { Converter } from 'easy-currencies';
 
@@ -122,6 +123,14 @@ export class PaymentService
                         metadata.courseId,
                         'paid'
                     );
+
+                    // Track Revenue
+                    await AnalyticsService.trackCourseMetric(
+                        metadata.courseId,
+                        'revenue',
+                        'totalRevenue',
+                        amount / 100
+                    );
                 }
                 return true;
             }
@@ -148,7 +157,7 @@ export class PaymentService
 
         const event = payload.event;
         if (event === 'charge.success') {
-            const { reference, metadata } = payload.data;
+            const { reference, metadata, amount } = payload.data;
 
             const transaction = await Transaction.findOne({ processorTransactionId: reference });
             if (transaction && transaction.status !== 'completed') {
@@ -160,6 +169,14 @@ export class PaymentService
                     metadata.userId,
                     metadata.courseId,
                     'purchase'
+                );
+
+                // Track Revenue
+                await AnalyticsService.trackCourseMetric(
+                    metadata.courseId,
+                    'revenue',
+                    'totalRevenue',
+                    amount / 100
                 );
             }
         }

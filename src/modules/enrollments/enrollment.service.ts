@@ -51,6 +51,8 @@ export class EnrollmentService
             { upsert: true }
         );
 
+
+
         // --- INTER-MODULE CONNECTION: Analytics ---
         await AnalyticsService.trackCourseMetric(courseId, 'enrollment', 'new', 1);
 
