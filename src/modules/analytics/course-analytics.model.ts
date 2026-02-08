@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ICourseAnalytics extends Document
+export interface ICourseAnalytics extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     period: 'daily' | 'weekly' | 'monthly';
@@ -100,5 +101,7 @@ const courseAnalyticsSchema = new Schema<ICourseAnalytics>(
 );
 
 courseAnalyticsSchema.index({ courseId: 1, period: 1, startDate: 1 });
+
+courseAnalyticsSchema.plugin(tenantPlugin);
 
 export const CourseAnalytics = model<ICourseAnalytics>('CourseAnalytics', courseAnalyticsSchema);

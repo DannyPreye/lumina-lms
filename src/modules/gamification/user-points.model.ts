@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
 export interface IPointsHistory
 {
@@ -8,7 +9,7 @@ export interface IPointsHistory
     createdAt: Date;
 }
 
-export interface IUserPoints extends Document
+export interface IUserPoints extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     totalPoints: number;
@@ -37,7 +38,7 @@ const pointsHistorySchema = new Schema<IPointsHistory>(
 
 const userPointsSchema = new Schema<IUserPoints>(
     {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         totalPoints: { type: Number, default: 0 },
         level: { type: Number, default: 1 },
         pointsHistory: [ pointsHistorySchema ],
@@ -49,5 +50,9 @@ const userPointsSchema = new Schema<IUserPoints>(
     },
     { timestamps: true }
 );
+
+userPointsSchema.index({ userId: 1, tenantId: 1 }, { unique: true });
+
+userPointsSchema.plugin(tenantPlugin);
 
 export const UserPoints = model<IUserPoints>('UserPoints', userPointsSchema);

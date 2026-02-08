@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IInstructorProfile extends Document
+export interface IInstructorProfile extends Document, ITenantAware
 {
     user: Types.ObjectId;
     firstName: string;
@@ -25,7 +26,7 @@ export interface IInstructorProfile extends Document
 
 const instructorProfileSchema = new Schema<IInstructorProfile>(
     {
-        user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+        user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
         displayName: { type: String, required: true },
@@ -45,5 +46,8 @@ const instructorProfileSchema = new Schema<IInstructorProfile>(
     },
     { timestamps: true }
 );
+
+instructorProfileSchema.index({ user: 1, tenantId: 1 }, { unique: true });
+instructorProfileSchema.plugin(tenantPlugin);
 
 export const InstructorProfile = model<IInstructorProfile>('InstructorProfile', instructorProfileSchema);

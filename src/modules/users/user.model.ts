@@ -1,12 +1,12 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { tenantPlugin } from '../../common/plugins/tenant.plugin';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IUser extends Document
+export interface IUser extends Document, ITenantAware
 {
     email: string;
     passwordHash?: string;
-    roles: ('student' | 'instructor' | 'admin' | 'teaching_assistant')[];
+    roles: ('student' | 'instructor' | 'admin' | 'teaching_assistant' | 'system_admin')[];
     status: 'active' | 'suspended' | 'deactivated';
     emailVerified: boolean;
     verificationToken?: string;
@@ -34,7 +34,7 @@ const userSchema = new Schema<IUser>(
         passwordHash: { type: String, required: false, select: false },
         roles: {
             type: [ String ],
-            enum: [ 'student', 'instructor', 'admin', 'teaching_assistant' ],
+            enum: [ 'student', 'instructor', 'admin', 'teaching_assistant', 'system_admin' ],
             default: [ 'student' ],
         },
         status: {

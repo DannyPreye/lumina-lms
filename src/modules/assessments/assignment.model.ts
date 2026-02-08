@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IAssignment extends Document
+export interface IAssignment extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     moduleId: Types.ObjectId;
@@ -114,5 +115,7 @@ const assignmentSchema = new Schema<IAssignment>(
 assignmentSchema.index({ courseId: 1, status: 1 });
 assignmentSchema.index({ dueDate: 1 });
 assignmentSchema.index({ type: 1 });
+
+assignmentSchema.plugin(tenantPlugin);
 
 export const Assignment = model<IAssignment>('Assignment', assignmentSchema);

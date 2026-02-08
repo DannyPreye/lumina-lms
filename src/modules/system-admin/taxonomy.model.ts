@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ICategory extends Document
+export interface ICategory extends Document, ITenantAware
 {
     name: string;
     slug: string;
@@ -38,9 +39,11 @@ categorySchema.virtual('subcategories', {
 categorySchema.set('toObject', { virtuals: true });
 categorySchema.set('toJSON', { virtuals: true });
 
+categorySchema.plugin(tenantPlugin);
+
 export const Category = model<ICategory>('Category', categorySchema);
 
-export interface ITag extends Document
+export interface ITag extends Document, ITenantAware
 {
     name: string;
     slug: string;
@@ -56,5 +59,7 @@ const tagSchema = new Schema<ITag>(
     },
     { timestamps: { createdAt: true, updatedAt: false } }
 );
+
+tagSchema.plugin(tenantPlugin);
 
 export const Tag = model<ITag>('Tag', tagSchema);

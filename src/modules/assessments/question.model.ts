@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IQuestion extends Document
+export interface IQuestion extends Document, ITenantAware
 {
     quizId: Types.ObjectId;
     type: 'multiple_choice' | 'multiple_select' | 'true_false' | 'short_answer' | 'essay' | 'fill_blank' | 'matching' | 'ordering' | 'code';
@@ -134,5 +135,7 @@ const questionSchema = new Schema<IQuestion>(
 questionSchema.index({ quizId: 1, order: 1 });
 questionSchema.index({ difficulty: 1 });
 questionSchema.index({ type: 1 });
+
+questionSchema.plugin(tenantPlugin);
 
 export const Question = model<IQuestion>('Question', questionSchema);

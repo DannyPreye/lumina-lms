@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IBlogPost extends Document
+export interface IBlogPost extends Document, ITenantAware
 {
     title: string;
     slug: string;
@@ -54,5 +55,7 @@ const blogPostSchema = new Schema<IBlogPost>(
 blogPostSchema.index({ title: 'text', content: 'text', excerpt: 'text' });
 blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ status: 1, publishedAt: -1 });
+
+blogPostSchema.plugin(tenantPlugin);
 
 export const BlogPost = model<IBlogPost>('BlogPost', blogPostSchema);

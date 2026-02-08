@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IQuizAttempt extends Document
+export interface IQuizAttempt extends Document, ITenantAware
 {
     quizId: Types.ObjectId;
     userId: Types.ObjectId;
@@ -58,5 +59,7 @@ const quizAttemptSchema = new Schema<IQuizAttempt>(
 quizAttemptSchema.index({ quizId: 1, userId: 1, attemptNumber: 1 }, { unique: true });
 quizAttemptSchema.index({ userId: 1, courseId: 1 });
 quizAttemptSchema.index({ submittedAt: -1 });
+
+quizAttemptSchema.plugin(tenantPlugin);
 
 export const QuizAttempt = model<IQuizAttempt>('QuizAttempt', quizAttemptSchema);

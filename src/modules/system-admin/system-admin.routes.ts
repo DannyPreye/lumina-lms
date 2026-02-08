@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { SystemAdminController } from './system-admin.controller';
+import { TenantController } from './tenant.controller';
 import { protect, authorize } from '../../common/middlewares/auth.middleware';
 
 const router = Router();
@@ -39,4 +40,36 @@ router.post(
     SystemAdminController.postAnnouncement as any
 );
 
+
+
+// --- TENANT MANAGEMENT ROUTES (Admin only) ---
+router.post(
+    '/tenants',
+    protect,
+    authorize('admin'),
+    TenantController.onboardTenant as any
+);
+
+router.get(
+    '/tenants',
+    protect,
+    authorize('admin'),
+    TenantController.listTenants as any
+);
+
+router.get(
+    '/tenants/:tenantId',
+    protect,
+    authorize('admin'),
+    TenantController.getTenant as any
+);
+
+router.patch(
+    '/tenants/:tenantId/config',
+    protect,
+    authorize('admin'),
+    TenantController.updateConfig as any
+);
+
 export default router;
+

@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface INotification extends Document
+export interface INotification extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     type: 'course_update' | 'assignment_due' | 'quiz_graded' | 'discussion_reply' | 'live_session' | 'achievement' | 'announcement' | 'certificate_issued';
@@ -61,5 +62,7 @@ const notificationSchema = new Schema<INotification>(
 );
 
 notificationSchema.index({ userId: 1, status: 1, createdAt: -1 });
+
+notificationSchema.plugin(tenantPlugin);
 
 export const Notification = model<INotification>('Notification', notificationSchema);

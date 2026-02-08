@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { tenantPlugin } from '../../common/plugins/tenant.plugin';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ITransaction extends Document
+export interface ITransaction extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     courseId?: Types.ObjectId;
@@ -58,7 +58,7 @@ transactionSchema.plugin(tenantPlugin);
 
 export const Transaction = model<ITransaction>('Transaction', transactionSchema);
 
-export interface ISystemSetting extends Document
+export interface ISystemSetting extends Document, ITenantAware
 {
     key: string;
     value: any;
@@ -83,7 +83,7 @@ systemSettingSchema.index({ key: 1, tenantId: 1 }, { unique: true });
 systemSettingSchema.plugin(tenantPlugin);
 export const SystemSetting = model<ISystemSetting>('SystemSetting', systemSettingSchema);
 
-export interface IAuditLog extends Document
+export interface IAuditLog extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     action: string;

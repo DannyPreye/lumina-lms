@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
 export interface ICartItem
 {
@@ -6,7 +7,7 @@ export interface ICartItem
     addedAt: Date;
 }
 
-export interface ICart extends Document
+export interface ICart extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     items: ICartItem[];
@@ -28,3 +29,5 @@ const cartSchema = new Schema<ICart>(
 );
 
 export const Cart = model<ICart>('Cart', cartSchema);
+
+cartSchema.plugin(tenantPlugin);

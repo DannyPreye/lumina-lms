@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ICertificate extends Document
+export interface ICertificate extends Document, ITenantAware
 {
     certificateId: string;
     template: Types.ObjectId;
@@ -38,5 +39,7 @@ const CertificateSchema = new Schema<ICertificate>({
     issueDate: { type: Date, default: Date.now },
     isValid: { type: Boolean, default: true }
 }, { timestamps: true });
+
+CertificateSchema.plugin(tenantPlugin);
 
 export const Certificate = model<ICertificate>('Certificate', CertificateSchema);

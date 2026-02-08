@@ -1,0 +1,3 @@
+src/config/passport.config.ts(27,25): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'profile' does not exist in type '{ email?: StringQueryTypeCasting | undefined; passwordHash?: StringQueryTypeCasting | undefined; roles?: ("student" | "instructor" | "admin" | "teaching_assistant")[] | StringQueryTypeCasting[] | undefined; ... 69 more ...; validateSync?: { ...; } | ... 1 more ... | undefined; }'.

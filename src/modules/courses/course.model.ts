@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { tenantPlugin } from '../../common/plugins/tenant.plugin';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ICourse extends Document
+export interface ICourse extends Document, ITenantAware
 {
     title: string;
     slug: string;

@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IAIConversation extends Document
+export interface IAIConversation extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     courseId: Types.ObjectId;
@@ -60,5 +61,7 @@ const aiConversationSchema = new Schema<IAIConversation>(
     },
     { timestamps: true }
 );
+
+aiConversationSchema.plugin(tenantPlugin);
 
 export const AIConversation = model<IAIConversation>('AIConversation', aiConversationSchema);

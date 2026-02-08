@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IUserAchievement extends Document
+export interface IUserAchievement extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     achievementId: Types.ObjectId;
@@ -25,6 +26,8 @@ const userAchievementSchema = new Schema<IUserAchievement>(
     { timestamps: { createdAt: true, updatedAt: false } }
 );
 
-userAchievementSchema.index({ userId: 1, achievementId: 1, courseId: 1 }, { unique: true });
+userAchievementSchema.index({ userId: 1, achievementId: 1, courseId: 1, tenantId: 1 }, { unique: true });
+
+userAchievementSchema.plugin(tenantPlugin);
 
 export const UserAchievement = model<IUserAchievement>('UserAchievement', userAchievementSchema);

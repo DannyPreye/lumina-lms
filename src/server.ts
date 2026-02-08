@@ -2,11 +2,14 @@ import app from './app';
 import { config } from './config/env.config';
 import { connectDB } from './database/mongoose';
 
+import { seedSystemAdmin } from './common/utils/seed-admin';
+
 const startServer = async () =>
 {
     try {
         // Connect to Database
         await connectDB();
+        await seedSystemAdmin();
 
         const PORT = config.PORT || 5000;
 

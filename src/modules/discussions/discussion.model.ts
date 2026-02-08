@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
 export interface IReply
 {
@@ -22,7 +23,7 @@ export interface IReply
     deletedAt?: Date;
 }
 
-export interface IDiscussion extends Document
+export interface IDiscussion extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     lessonId?: Types.ObjectId;
@@ -112,5 +113,7 @@ discussionSchema.index({ lessonId: 1, createdAt: -1 });
 discussionSchema.index({ authorId: 1 });
 discussionSchema.index({ type: 1 });
 discussionSchema.index({ tags: 1 });
+
+discussionSchema.plugin(tenantPlugin);
 
 export const Discussion = model<IDiscussion>('Discussion', discussionSchema);

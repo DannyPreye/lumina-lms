@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ISubmission extends Document
+export interface ISubmission extends Document, ITenantAware
 {
     assignmentId: Types.ObjectId;
     userId: Types.ObjectId;
@@ -136,5 +137,7 @@ submissionSchema.index({ assignmentId: 1, userId: 1, attemptNumber: 1 }, { uniqu
 submissionSchema.index({ userId: 1, courseId: 1 });
 submissionSchema.index({ status: 1 });
 submissionSchema.index({ submittedAt: -1 });
+
+submissionSchema.plugin(tenantPlugin);
 
 export const Submission = model<ISubmission>('Submission', submissionSchema);

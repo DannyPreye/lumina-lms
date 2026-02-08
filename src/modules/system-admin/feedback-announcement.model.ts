@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IReview extends Document
+export interface IReview extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     userId: Types.ObjectId;
@@ -46,9 +47,11 @@ const reviewSchema = new Schema<IReview>(
     { timestamps: true }
 );
 
+reviewSchema.plugin(tenantPlugin);
+
 export const Review = model<IReview>('Review', reviewSchema);
 
-export interface IAnnouncement extends Document
+export interface IAnnouncement extends Document, ITenantAware
 {
     courseId?: Types.ObjectId; // null for global
     authorId: Types.ObjectId;
@@ -99,5 +102,7 @@ const announcementSchema = new Schema<IAnnouncement>(
     },
     { timestamps: true }
 );
+
+announcementSchema.plugin(tenantPlugin);
 
 export const Announcement = model<IAnnouncement>('Announcement', announcementSchema);

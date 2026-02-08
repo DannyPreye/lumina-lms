@@ -19,7 +19,7 @@ export const tenantPlugin = (schema: Schema) =>
     });
 
     // 2. Pre-save hook: inject tenantId
-    schema.pre('save', function (next)
+    schema.pre('save' as any, function (this: any, next: any)
     {
         const tenantId = getTenantId();
         // If tenantId is already set (e.g. manually by admin or migration script), don't overwrite
@@ -45,7 +45,7 @@ export const tenantPlugin = (schema: Schema) =>
 
     methods.forEach((method) =>
     {
-        schema.pre(method as any, function (this: any, next)
+        schema.pre(method as any, function (this: any, next: (err?: any) => void)
         {
             const tenantId = getTenantId();
 

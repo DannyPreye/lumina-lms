@@ -1,0 +1,4629 @@
+import { OpenAPIV3 } from "openapi-types";
+
+export const GeneratedPaths: OpenAPIV3.PathsObject = {
+  // ==========================================
+  // AUTH MODULE
+  // ==========================================
+  // DASHBOARD MODULE
+  // ==========================================
+  "/dashboard/student": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get student dashboard",
+      description: "Returns dashboard data for the authenticated student.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "Student dashboard data",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    $ref: "#/components/schemas/DashboardStudentResponse",
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
+  "/dashboard/instructor": {
+    get: {
+      tags: [ "Instructor" ],
+      summary: "Get instructor dashboard",
+      description: "Returns dashboard data for the authenticated instructor.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "Instructor dashboard data",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    $ref: "#/components/schemas/DashboardInstructorResponse",
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
+  "/dashboard/admin": {
+    get: {
+      tags: [ "Admin" ],
+      summary: "Get admin dashboard",
+      description: "Returns dashboard data for the authenticated admin.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "Admin dashboard data",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    $ref: "#/components/schemas/DashboardAdminResponse",
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
+  // ==========================================
+  "/auth/register": {
+    post: {
+      tags: [ "Public" ],
+      summary: "User Registration",
+      description: "Register a new user and send a verification email.",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [
+                "email",
+                "password",
+                "firstName",
+                "lastName",
+                "displayName",
+              ],
+              properties: {
+                email: { type: "string", format: "email" },
+                password: { type: "string", minLength: 8 },
+                firstName: { type: "string" },
+                lastName: { type: "string" },
+                displayName: { type: "string" },
+                roles: { type: "array", items: { type: "string" } },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Registration successful",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                  data: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      email: { type: "string" },
+                      roles: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "User already exists or validation error" },
+      },
+    },
+  },
+  "/auth/login": {
+    post: {
+      tags: [ "Public" ],
+      summary: "User Login",
+      description:
+        "Authenticate user and return access token. Refresh token is set in an HttpOnly cookie.",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "email", "password" ],
+              properties: {
+                email: { type: "string", format: "email" },
+                password: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Login successful",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  accessToken: { type: "string" },
+                  user: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      email: { type: "string" },
+                      roles: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  refreshToken: { type: "string" },
+                  expiresAt: { type: "string", format: "date-time" },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Invalid credentials" },
+      },
+    },
+  },
+  "/auth/logout": {
+    post: {
+      tags: [ "Public" ],
+      summary: "User Logout",
+      description: "Clear the refresh token cookie.",
+      responses: {
+        200: {
+          description: "Logged out successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/auth/refresh-token": {
+    post: {
+      tags: [ "Public" ],
+      summary: "Refresh Access Token",
+      description:
+        "Use the refresh token (from cookie or request body) to get a new access token.",
+      requestBody: {
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                refreshToken: {
+                  type: "string",
+                  description:
+                    "The refresh token (optional if provided via cookie)",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "New access token returned",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  accessToken: { type: "string" },
+                  expiresAt: { type: "string", format: "date-time" },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Invalid or missing refresh token" },
+      },
+    },
+  },
+  "/auth/verify-email": {
+    post: {
+      tags: [ "Public" ],
+      summary: "Verify Email",
+      description:
+        "Verify user email using the token sent during registration.",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "token" ],
+              properties: { token: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Email verified successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "Invalid or expired token" },
+      },
+    },
+  },
+  "/auth/forgot-password": {
+    post: {
+      tags: [ "Public" ],
+      summary: "Forgot Password",
+      description: "Send a password reset link to the provided email.",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "email" ],
+              properties: { email: { type: "string", format: "email" } },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description:
+            "Reset link sent (or supposedly sent to prevent enumeration)",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/auth/reset-password": {
+    post: {
+      tags: [ "Public" ],
+      summary: "Reset Password",
+      description: "Reset password using the token sent in the reset email.",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "token", "newPassword" ],
+              properties: {
+                token: { type: "string" },
+                newPassword: { type: "string", minLength: 8 },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Password reset successful",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "Invalid or expired token" },
+      },
+    },
+  },
+  "/auth/google": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Google OAuth login",
+      description: "Redirects to Google for authentication.",
+      responses: { 302: { description: "Redirect to Google" } },
+    },
+  },
+  "/auth/google/callback": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Google OAuth callback",
+      description:
+        "Callback endpoint for Google OAuth redirection. Returns access token upon successful authentication.",
+      responses: {
+        200: {
+          description: "Authentication successful",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  accessToken: { type: "string" },
+                  user: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      email: { type: "string" },
+                      roles: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  expiresAt: { type: "string", format: "date-time" },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Authentication failed" },
+      },
+    },
+  },
+
+  // ==========================================
+  // USERS MODULE
+  // ==========================================
+  "/users/profile": {
+    get: {
+      tags: [ "User" ],
+      summary: "Get current user profile",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "Profile data retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    patch: {
+      tags: [ "User" ],
+      summary: "Update current user profile",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                firstName: { type: "string" },
+                lastName: { type: "string" },
+                displayName: { type: "string" },
+                bio: { type: "string" },
+                title: { type: "string" },
+                avatar: { type: "string" },
+                preferences: {
+                  type: "object",
+                  properties: {
+                    emailNotifications: { type: "boolean" },
+                    pushNotifications: { type: "boolean" },
+                    theme: { type: "string", enum: [ "light", "dark", "auto" ] },
+                    language: { type: "string" },
+                    timezone: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Profile updated successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/users/avatar": {
+    patch: {
+      tags: [ "User" ],
+      summary: "Update current user avatar",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "avatar" ],
+              properties: {
+                avatar: { type: "string", description: "The URL of the new avatar" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Avatar updated successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/users/change-password": {
+    post: {
+      tags: [ "User" ],
+      summary: "Change user password",
+      description: "Authenticated users can change their password by providing the current and new passwords.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "currentPassword", "newPassword" ],
+              properties: {
+                currentPassword: { type: "string" },
+                newPassword: { type: "string", minLength: 8 },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Password changed successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "Bad request" },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
+  "/users": {
+
+    get: {
+      tags: [ "Admin" ],
+      summary: "List all users (Admin only)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "status",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "active", "suspended", "deactivated" ],
+          },
+        },
+        { name: "role", in: "query", schema: { type: "string" } },
+      ],
+      responses: {
+        200: {
+          description: "Users list retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  users: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/User" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/users/{id}": {
+    get: {
+      tags: [ "Admin" ],
+      summary: "Get user by ID (Admin only)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "User data retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Admin" ],
+      summary: "Delete user (Admin only)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "User deleted successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/users/{id}/roles": {
+    patch: {
+      tags: [ "Admin" ],
+      summary: "Update user roles (Admin only)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "roles" ],
+              properties: {
+                roles: { type: "array", items: { type: "string" } },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Roles updated successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/users/{id}/status": {
+    patch: {
+      tags: [ "Admin" ],
+      summary: "Update user status (Admin only)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "status" ],
+              properties: {
+                status: {
+                  type: "string",
+                  enum: [ "active", "suspended", "deactivated" ],
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Status updated successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                  data: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // COURSES MODULE
+  // ==========================================
+  "/courses/category/{categoryId}": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get courses by category",
+      description:
+        "Returns all published courses for a specific category or subcategory ID.",
+      parameters: [
+        {
+          name: "categoryId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Courses retrieved successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Course" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses": {
+    get: {
+      tags: [ "Public" ],
+      summary: "List courses with filters and pagination",
+      description:
+        "Returns a paginated list of published courses. Supports filtering by category, level, pricing type, and keyword search.",
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "category",
+          in: "query",
+          schema: { type: "string" },
+          description: "Category or subcategory ID",
+        },
+        {
+          name: "level",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "beginner", "intermediate", "advanced", "all_levels" ],
+          },
+        },
+        {
+          name: "pricingType",
+          in: "query",
+          schema: { type: "string", enum: [ "free", "paid", "subscription" ] },
+        },
+        {
+          name: "search",
+          in: "query",
+          schema: { type: "string" },
+          description: "Keyword search in title and description",
+        },
+        {
+          name: "sort",
+          in: "query",
+          schema: { type: "string", default: "-createdAt" },
+          description: "Field to sort by (prefix with - for descending)",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  courses: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Course" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Create a new course",
+      description: "Initialize a course draft with basic info",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [
+                "title",
+                "shortDescription",
+                "fullDescription",
+                "category",
+              ],
+              properties: {
+                title: {
+                  type: "string",
+                  example: "Advanced Web Development with React",
+                },
+                shortDescription: {
+                  type: "string",
+                  example:
+                    "Master modern React patterns and performance optimization.",
+                },
+                fullDescription: {
+                  type: "string",
+                  example:
+                    "In this comprehensive course, you will learn how to build scalable applications using React, Redux, and modern hooks. We cover architectural patterns, performance bottlenecks, and automated testing.",
+                },
+                category: { type: "string", example: "Development" },
+                coverImage: {
+                  type: "string",
+                  example: "https://example.com/images/course-cover.jpg",
+                },
+                previewVideo: {
+                  type: "string",
+                  example: "https://example.com/videos/course-preview.mp4",
+                },
+                subcategory: { type: "string", example: "Frontend" },
+                level: {
+                  type: "string",
+                  enum: [
+                    "beginner",
+                    "intermediate",
+                    "advanced",
+                    "all_levels",
+                  ],
+                  example: "advanced",
+                },
+                tags: {
+                  type: "array",
+                  items: { type: "string" },
+                  example: [ "React", "JavaScript", "Web Development" ],
+                },
+                pricing: {
+                  type: "object",
+                  properties: {
+                    type: {
+                      type: "string",
+                      enum: [ "free", "paid", "subscription" ],
+                      example: "paid",
+                    },
+                    amount: { type: "number", example: 49.99 },
+                    currency: { type: "string", example: "USD" },
+                  },
+                },
+                learningObjectives: {
+                  type: "array",
+                  items: { type: "string" },
+                  example: [
+                    "Understand advanced hook patterns",
+                    "Implement custom middleware",
+                    "Profile application performance",
+                  ],
+                },
+                requirements: {
+                  type: "array",
+                  items: { type: "string" },
+                  example: [
+                    "Solid JavaScript knowledge",
+                    "Basic React understanding",
+                  ],
+                },
+                settings: {
+                  type: "object",
+                  properties: {
+                    enrollmentType: {
+                      type: "string",
+                      enum: [ "open", "approval_required", "invitation_only" ],
+                      example: "open",
+                    },
+                    allowDiscussions: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Course created",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Course" },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/instructor/my-courses": {
+    get: {
+      tags: [ "Instructor" ],
+      summary: "List instructor courses",
+      description:
+        "Returns a paginated list of courses created by the authenticated instructor. Supports filtering by category, level, pricing type, and search.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "category",
+          in: "query",
+          schema: { type: "string" },
+          description: "Category or subcategory ID",
+        },
+        {
+          name: "level",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "beginner", "intermediate", "advanced", "all_levels" ],
+          },
+        },
+        {
+          name: "pricingType",
+          in: "query",
+          schema: { type: "string", enum: [ "free", "paid", "subscription" ] },
+        },
+        {
+          name: "search",
+          in: "query",
+          schema: { type: "string" },
+          description: "Keyword search in title and description",
+        },
+        {
+          name: "sort",
+          in: "query",
+          schema: { type: "string", default: "-createdAt" },
+          description: "Field to sort by (prefix with - for descending)",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  courses: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Course" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Unauthorized" },
+      },
+    },
+  },
+  "/courses/instructor/my-courses/{courseId}": {
+    get: {
+      tags: [ "Instructor" ],
+      summary: "Get instructor course by ID",
+      description:
+        "Returns the full details of a course created by the authenticated instructor.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Course details retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Course" },
+                },
+              },
+            },
+          },
+        },
+        401: { description: "Unauthorized" },
+        404: { description: "Course not found or unauthorized" },
+      },
+    },
+  },
+  "/courses/{slug}": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get course details by slug",
+      parameters: [
+        {
+          name: "slug",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Course" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/status": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update course status",
+      description:
+        "Change the course status to draft, published, or archived.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "status" ],
+              properties: {
+                status: {
+                  type: "string",
+                  enum: [ "draft", "published", "archived" ],
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Course status updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Course" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update course details",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Course" },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Course updated",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Course" },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Instructor" ],
+      summary: "Delete a course",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Course deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/structure": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get course curriculum structure",
+      description: "Returns a hierarchical list of modules and their basic lesson metadata. Sensitive content is excluded.",
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: {
+                      allOf: [
+                        { $ref: "#/components/schemas/Module" },
+                        {
+                          type: "object",
+                          properties: {
+                            lessons: {
+                              type: "array",
+                              items: {
+                                type: "object",
+                                description: "Filtered lesson metadata for public view",
+                                properties: {
+                                  title: { type: "string" },
+                                  description: { type: "string" },
+                                  order: { type: "number" },
+                                  contentType: { type: "string" },
+                                  videoContent: {
+                                    type: "object",
+                                    properties: {
+                                      videoDuration: { type: "number" },
+                                      thumbnailUrl: { type: "string" },
+                                    },
+                                  },
+                                  textContent: {
+                                    type: "object",
+                                    properties: {
+                                      readingTime: { type: "number" },
+                                    },
+                                  },
+                                  estimatedDuration: { type: "number" },
+                                  isFree: { type: "boolean" },
+                                  moduleId: { type: "string" },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/enrolled": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get full course details for enrolled students",
+      description: "Returns full course information, enrollment status, and complete structure including all content for authorized students.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Full course details retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "object",
+                    properties: {
+                      course: { $ref: "#/components/schemas/Course" },
+                      enrollment: { $ref: "#/components/schemas/Enrollment" },
+                      structure: {
+                        type: "array",
+                        items: {
+                          allOf: [
+                            { $ref: "#/components/schemas/Module" },
+                            {
+                              type: "object",
+                              properties: {
+                                lessons: {
+                                  type: "array",
+                                  items: { $ref: "#/components/schemas/Lesson" },
+                                },
+                                totalLessons: { type: "number" },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        403: { description: "User not enrolled in this course" },
+        404: { description: "Course not found" },
+      },
+    },
+  },
+  "/courses/{courseId}/modules": {
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Add a new module to a course",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "title", "order" ],
+              properties: {
+                title: { type: "string" },
+                order: { type: "number" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Module added",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Module" },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/modules/{moduleId}": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update module details",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Module" },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Module updated",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Module" },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Instructor" ],
+      summary: "Delete a module",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Module deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/modules/{moduleId}/lessons": {
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Add a new lesson to a module",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Lesson" },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Lesson added",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Lesson" },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update lesson details",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "lessonId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Lesson" },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Lesson updated",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Lesson" },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Instructor" ],
+      summary: "Delete a lesson",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "lessonId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Lesson deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // ENROLLMENTS MODULE
+  // ==========================================
+  "/enrollments/enroll": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Enroll in a course",
+      description: "Enrolls the authenticated user into a published course.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId" ],
+              properties: { courseId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Enrolled successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Enrollment" },
+                },
+              },
+            },
+          },
+        },
+        400: { description: "Course not published or already enrolled" },
+        404: { description: "Course not found" },
+      },
+    },
+  },
+  "/enrollments/my-courses": {
+    get: {
+      tags: [ "Student" ],
+      summary: "List user enrollments",
+      description:
+        "Returns all courses the authenticated user is enrolled in. Supports filtering by status and pagination.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "status",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "active", "completed", "dropped" ],
+          },
+        },
+        {
+          name: "type",
+          in: "query",
+          schema: {
+            type: "string",
+            description: "Enrollment type (e.g., self, assigned)",
+          },
+        },
+        {
+          name: "sort",
+          in: "query",
+          schema: { type: "string", default: "-enrolledAt" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  enrollments: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Enrollment" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/enrollments/{courseId}/progress": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get course progress details",
+      description:
+        "Returns the progress and enrollment details for a specific course.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Enrollment" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Enrollment not found" },
+      },
+    },
+  },
+  "/enrollments/{courseId}/complete-lesson": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Mark lesson as completed",
+      description:
+        "Updates the user progress by marking a specific lesson as complete.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "lessonId" ],
+              properties: { lessonId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Lesson completed",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Enrollment" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Enrollment not found" },
+      },
+    },
+  },
+  "/enrollments/{courseId}/update-progress": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Update detailed lesson progress (time, status)",
+      security: [ { bearerAuth: [] } ],
+      parameters: [ { name: "courseId", in: "path", required: true, schema: { type: "string" } } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "lessonId" ],
+              properties: {
+                lessonId: { type: "string" },
+                status: { type: "string", enum: [ "not_started", "in_progress", "completed" ] },
+                timeSpent: { type: "number", description: "Seconds to add" },
+              },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Updated" } },
+    },
+  },
+
+  // ==========================================
+  // ASSESSMENTS MODULE
+  // ==========================================
+  "/assessments/quizzes": {
+    get: {
+      tags: [ "Student", "Instructor" ],
+      summary: "List quizzes",
+      description: "Retrieve quizzes with optional filtering by course, module, or lesson.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "query",
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "query",
+          schema: { type: "string" },
+        },
+        {
+          name: "lessonId",
+          in: "query",
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "List of quizzes",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Quiz" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Create a new quiz",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "title" ],
+              properties: {
+                courseId: { type: "string" },
+                moduleId: { type: "string", description: "Optional: Link assignment to a specific module" },
+                lessonId: { type: "string", description: "Optional: Link assessment to a specific lesson" },
+                title: { type: "string" },
+                description: { type: "string" },
+                type: {
+                  type: "string",
+                  enum: [ "practice", "graded", "survey", "final_exam" ],
+                },
+                settings: {
+                  type: "object",
+                  properties: {
+                    timeLimit: { type: "number" },
+                    passingScore: { type: "number" },
+                    maxAttempts: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Quiz created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Quiz" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/quizzes/{quizId}": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get quiz details",
+      description:
+        "Returns quiz metadata and questions. Answers are stripped for students.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "quizId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "object",
+                    properties: {
+                      quiz: { $ref: "#/components/schemas/Quiz" },
+                      questions: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/Question" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/quizzes/{quizId}/questions": {
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Add a question to a quiz",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "quizId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Question" },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Question added",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Question" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/quizzes/{quizId}/publish": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Publish a quiz",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "quizId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Quiz published",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Quiz" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/attempts/start": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Start a quiz attempt",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "quizId", "courseId" ],
+              properties: {
+                quizId: { type: "string" },
+                courseId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Attempt started",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/QuizAttempt" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/attempts/{attemptId}/submit": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Submit quiz answers",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "attemptId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                answers: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      questionId: { type: "string" },
+                      answer: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Quiz graded",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/QuizAttempt" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/assignments": {
+    get: {
+      tags: [ "Student", "Instructor" ],
+      summary: "List assignments",
+      description: "Retrieve assignments with optional filtering by course, module, or lesson.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "query",
+          schema: { type: "string" },
+        },
+        {
+          name: "moduleId",
+          in: "query",
+          schema: { type: "string" },
+        },
+        {
+          name: "lessonId",
+          in: "query",
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "List of assignments",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Assignment" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Create a new assignment",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "title", "dueDate" ],
+              properties: {
+                courseId: { type: "string" },
+                title: { type: "string" },
+                description: { type: "string" },
+                dueDate: { type: "string", format: "date-time" },
+                totalPoints: { type: "number" },
+                lateSubmission: {
+                  type: "object",
+                  properties: {
+                    allowed: { type: "boolean" },
+                    penaltyPercentage: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Assignment created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Assignment" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assessments/assignments/{assignmentId}/submit": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Submit an assignment",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "assignmentId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                content: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string", description: "Essay or text response" },
+                    links: { type: "array", items: { type: "string" }, description: "External links" },
+                    files: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          filename: { type: "string" },
+                          url: { type: "string" },
+                          type: { type: "string" },
+                          size: { type: "number" },
+                        },
+                      },
+                      description: "Uploaded file attachments",
+                    },
+                    codeSubmission: {
+                      type: "object",
+                      properties: {
+                        language: { type: "string" },
+                        code: { type: "string" },
+                        repository: { type: "string" },
+                      },
+                      description: "Programming assignment submission",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Assignment submitted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Submission" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // DISCUSSIONS MODULE
+  // ==========================================
+  "/discussions": {
+    post: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Create a discussion thread",
+      description:
+        "Initializes a new discussion thread in a specific course or lesson.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "title", "body" ],
+              properties: {
+                courseId: { type: "string" },
+                lessonId: { type: "string" },
+                title: { type: "string" },
+                body: { type: "string" },
+                type: { type: "string", enum: [ "forum", "q_and_a" ] },
+                tags: { type: "array", items: { type: "string" } },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Thread created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Discussion" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/discussions/course/{courseId}": {
+    get: {
+      tags: [ "Public", "Student", "Instructor" ],
+      summary: "List course discussions",
+      description:
+        "Returns a paginated list of discussion threads associated with a specific course. Supports filtering by type, tag, and keyword search.",
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "type",
+          in: "query",
+          schema: { type: "string", enum: [ "forum", "q_and_a" ] },
+        },
+        {
+          name: "tag",
+          in: "query",
+          schema: { type: "string" },
+          description: "Filter by discussion tag",
+        },
+        {
+          name: "search",
+          in: "query",
+          schema: { type: "string" },
+          description: "Keyword search in title and body",
+        },
+        {
+          name: "sortBy",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "newest", "popular" ],
+            default: "newest",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  discussions: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Discussion" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/discussions/{id}": {
+    get: {
+      tags: [ "Public", "Student", "Instructor" ],
+      summary: "Get discussion details",
+      description: "Returns a full discussion thread including all replies.",
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Discussion" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Discussion not found" },
+      },
+    },
+    patch: {
+      tags: [ "Student" ],
+      summary: "Update a discussion thread",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                body: { type: "string" },
+                tags: { type: "array", items: { type: "string" } },
+              },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Discussion updated" } },
+    },
+    delete: {
+      tags: [ "Student" ],
+      summary: "Delete a discussion thread",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Discussion deleted" } },
+    },
+  },
+  "/discussions/{id}/lock": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Toggle thread lock status",
+      description: "Instructors can lock a thread to prevent new replies.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Lock status toggled" } },
+    },
+  },
+  "/discussions/{id}/pin": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Toggle thread pin status",
+      description: "Instructors can pin a thread to the top of the forum.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Pin status toggled" } },
+    },
+  },
+  "/discussions/{id}/vote": {
+    post: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Vote on a discussion",
+      description: "Cast an upvote or downvote on a discussion thread.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "type" ],
+              properties: { type: { type: "string", enum: [ "up", "down" ] } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Vote registered" } },
+    },
+  },
+  "/discussions/{id}/replies": {
+    post: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Add a reply to a discussion",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "body" ],
+              properties: {
+                body: { type: "string" },
+                parentReplyId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: { 201: { description: "Reply added" } },
+    },
+  },
+  "/discussions/{id}/replies/{replyId}/vote": {
+    post: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Vote on a reply",
+      description: "Cast an upvote or downvote on a specific reply.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "replyId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "type" ],
+              properties: { type: { type: "string", enum: [ "up", "down" ] } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Vote registered" } },
+    },
+  },
+  "/discussions/{id}/replies/{replyId}": {
+    patch: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Update a reply",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "replyId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "body" ],
+              properties: { body: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Reply updated" } },
+    },
+    delete: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Delete a reply",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "replyId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Reply deleted" } },
+    },
+  },
+  "/discussions/{id}/accept-answer": {
+    post: {
+      tags: [ "Student", "Instructor" ],
+      summary: "Accept an answer",
+      description:
+        "Marks a specific reply as the accepted answer for a Q&A style discussion.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "replyId" ],
+              properties: { replyId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Answer accepted" } },
+    },
+  },
+
+  // ==========================================
+  // LIVE SESSIONS MODULE
+  // ==========================================
+  "/live-sessions": {
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Schedule a live session",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/LiveSession" },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Session scheduled",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/LiveSession" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/live-sessions/instructor/my-sessions": {
+    get: {
+      tags: [ "Instructor" ],
+      summary: "Get instructor live sessions",
+      description:
+        "Returns all live sessions created by the authenticated instructor.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "Instructor sessions retrieved",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/LiveSession" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/live-sessions/{id}": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get live session details",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/LiveSession" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update live session details",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/LiveSession" },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Session updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/LiveSession" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Instructor" ],
+      summary: "Delete a live session",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Session deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  "/live-sessions/course/{courseId}": {
+    get: {
+      tags: [ "Student" ],
+      summary: "List course live sessions",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/LiveSession" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/live-sessions/{id}/status": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update live session status",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                status: {
+                  type: "string",
+                  enum: [ "scheduled", "ongoing", "completed", "cancelled" ],
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Status updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/LiveSession" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/live-sessions/{id}/register": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Register for a live session",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Registered successfully" } },
+    },
+  },
+  "/live-sessions/{id}/join": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Join a live session",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Joined successfully" } },
+    },
+  },
+
+  // ==========================================
+  // GAMIFICATION MODULE
+  // ==========================================
+  "/gamification/my-stats": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get user points and rank",
+      description:
+        "Returns the authenticated user points, level, streak, and earned badges.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "object",
+                    properties: {
+                      points: { $ref: "#/components/schemas/UserPoints" },
+                      badges: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            earnedAt: { type: "string", format: "date-time" },
+                            achievementId: {
+                              $ref: "#/components/schemas/Achievement",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/gamification/leaderboard/{type}": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get leaderboard rankings",
+      description:
+        "Returns the leaderboard for a specific type (e.g., global, weekly). Can optionally be filtered by courseId.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "type",
+          in: "path",
+          required: true,
+          schema: { type: "string", enum: [ "global", "weekly", "monthly" ] },
+        },
+        {
+          name: "courseId",
+          in: "query",
+          schema: { type: "string" },
+          description: "Filter leaderboard by course",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Leaderboard" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/gamification/award-points": {
+    post: {
+      tags: [ "Admin" ],
+      summary: "Manually award points to a user",
+      description:
+        "Allows an administrator to manually add points to a user account.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "userId", "points", "action" ],
+              properties: {
+                userId: { type: "string" },
+                points: { type: "number" },
+                action: { type: "string" },
+                referenceId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Points awarded successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/UserPoints" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // CERTIFICATES MODULE
+  // ==========================================
+  "/certificates/my-certificates": {
+    get: {
+      tags: [ "Student" ],
+      summary: "List user certificates",
+      description:
+        "Returns all academic certificates earned by the authenticated student.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Certificate" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/certificates/verify/{credentialId}": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Verify a certificate",
+      description:
+        "Publicly verify the authenticity of a certificate using its unique credential ID.",
+      parameters: [
+        {
+          name: "credentialId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Verified successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Certificate" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Certificate not found" },
+      },
+    },
+  },
+  "/certificates/templates": {
+    get: {
+      tags: [ "Instructor", "Admin" ],
+      summary: "List certificate templates",
+      description: "Returns available certificate designs and templates.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: {
+                      $ref: "#/components/schemas/CertificateTemplate",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Admin" ],
+      summary: "Create certificate template",
+      description:
+        "Administrators can define a new certificate design template.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/CertificateTemplate" },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Template created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/CertificateTemplate" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/certificates/issue": {
+    post: {
+      tags: [ "Instructor", "Admin" ],
+      summary: "Manually issue a certificate",
+      description:
+        "Instructors or admins can manually award a certificate to a student for a specific course.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "userId", "courseId" ],
+              properties: {
+                userId: { type: "string" },
+                courseId: { type: "string" },
+                templateId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Certificate issued",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Certificate" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/certificates/{id}/revoke": {
+    patch: {
+      tags: [ "Admin" ],
+      summary: "Revoke a certificate",
+      description:
+        "Administrators can revoke an issued certificate for academic integrity or administrative reasons.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "reason" ],
+              properties: { reason: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Certificate revoked",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Certificate" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Certificate not found" },
+      },
+    },
+  },
+
+  // ==========================================
+  // NOTIFICATIONS MODULE
+  // ==========================================
+  "/notifications": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get user notifications",
+      description:
+        "Returns a paginated list of notifications for the authenticated user. Supports filtering by status, type, and priority.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 20 },
+        },
+        {
+          name: "status",
+          in: "query",
+          schema: { type: "string", enum: [ "unread", "read", "archived" ] },
+        },
+        {
+          name: "type",
+          in: "query",
+          schema: { type: "string" },
+          description:
+            "Type of notification (e.g., course_update, achievement)",
+        },
+        {
+          name: "priority",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "low", "normal", "high", "urgent" ],
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  notifications: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Notification" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/notifications/mark-all-read": {
+    patch: {
+      tags: [ "Student" ],
+      summary: "Mark all notifications as read",
+      description:
+        'Updates the status of all current unread notifications for the user to "read".',
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/notifications/{id}/read": {
+    patch: {
+      tags: [ "Student" ],
+      summary: "Mark specific notification as read",
+      description: 'Updates the status of a single notification to "read".',
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Notification" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Notification not found" },
+      },
+    },
+  },
+  "/notifications/{id}": {
+    delete: {
+      tags: [ "Student" ],
+      summary: "Delete a notification",
+      description:
+        "Permanently removes a notification from the user account.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Notification not found" },
+      },
+    },
+  },
+
+  // ==========================================
+  // ANALYTICS MODULE
+  // ==========================================
+  "/analytics/my-performance/{courseId}": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Personal performance report",
+      description:
+        "Returns learning analytics and performance predictions for the authenticated user in a specific course.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/LearningAnalytics" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/analytics/track": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Track user activity",
+      description:
+        "Pings a learning metric (e.g., timeSpent) to be recorded in the analytics system.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "metric", "value" ],
+              properties: {
+                courseId: { type: "string" },
+                metric: { type: "string", example: "timeSpent" },
+                value: { type: "number", example: 30 },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { success: { type: "boolean" } },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/analytics/course-stats/{courseId}": {
+    get: {
+      tags: [ "Instructor", "Admin" ],
+      summary: "Course-wide analytics report",
+      description:
+        "Returns aggregated course statistics for a set period (daily, weekly, or monthly).",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "period",
+          in: "query",
+          schema: {
+            type: "string",
+            enum: [ "daily", "weekly", "monthly" ],
+            default: "weekly",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/CourseAnalytics" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/analytics/course-stats/{courseId}/refresh": {
+    post: {
+      tags: [ "Instructor", "Admin" ],
+      summary: "Refresh course analytics",
+      description:
+        "Manually triggers a new sync/recalculation of course-wide analytics data.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Analytics refreshed",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/CourseAnalytics" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // AI MODULE
+  // ==========================================
+  "/ai/sessions": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Start AI tutoring session",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "type" ],
+              properties: {
+                courseId: { type: "string" },
+                type: { type: "string", enum: [ "tutor", "study_assistant" ] },
+              },
+            },
+          },
+        },
+      },
+      responses: { 201: { description: "AI Session created" } },
+    },
+  },
+
+  // ==========================================
+  // SYSTEM ADMIN MODULE
+  // ==========================================
+  "/system-admin/categories": {
+    get: {
+      tags: [ "Public" ],
+      summary: "List taxonomy categories and subcategories",
+      description:
+        "Returns active course categories. Supports filtering for parent categories, subcategories, or fetching subcategories of a specific parent. If no parameters are provided, returns all parent categories with their subcategories populated. Query params:\n- parentId: string (fetch subcategories of this parent)\n- subOnly: boolean (fetch only subcategories)\n- parentOnly: boolean (fetch only parent categories)",
+      parameters: [
+        {
+          name: "parentId",
+          in: "query",
+          schema: { type: "string" },
+          required: false,
+          description:
+            "If provided, fetches subcategories of the given parent category ID.",
+        },
+        {
+          name: "subOnly",
+          in: "query",
+          schema: { type: "boolean" },
+          required: false,
+          description:
+            "If true, returns only subcategories (categories with a parent).",
+        },
+        {
+          name: "parentOnly",
+          in: "query",
+          schema: { type: "boolean" },
+          required: false,
+          description:
+            "If true, returns only parent categories (categories with no parent).",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Category" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Admin" ],
+      summary: "Create a new category",
+      description:
+        "Allows administrators to add a new category to the platform taxonomy.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "name", "slug" ],
+              properties: {
+                name: { type: "string" },
+                slug: { type: "string" },
+                description: { type: "string" },
+                icon: { type: "string" },
+                parentId: { type: "string" },
+                order: { type: "number" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Category created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Category" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/system-admin/announcements": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get global announcements",
+      description: "Returns all active global platform announcements.",
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Announcement" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Admin" ],
+      summary: "Post a new announcement",
+      description:
+        "Allows administrators or instructors to post a platform-wide or course-specific announcement.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "title", "content" ],
+              properties: {
+                title: { type: "string" },
+                content: { type: "string" },
+                type: {
+                  type: "string",
+                  enum: [ "info", "warning", "urgent", "success" ],
+                },
+                targetAudience: {
+                  type: "string",
+                  enum: [ "all", "students", "instructors" ],
+                },
+                courseId: { type: "string" },
+                isPinned: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Announcement created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Announcement" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/system-admin/reviews": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Submit a course review",
+      description:
+        "Allows a student to post a review and rating for a course they are enrolled in.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId", "rating", "review" ],
+              properties: {
+                courseId: { type: "string" },
+                rating: { type: "number", minimum: 1, maximum: 5 },
+                title: { type: "string" },
+                review: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Review submitted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Review" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/system-admin/reviews/{courseId}": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get course reviews",
+      description: "Fetch all approved reviews for a specific course.",
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "rating",
+          in: "query",
+          schema: { type: "integer", minimum: 1, maximum: 5 },
+        },
+      ],
+      responses: {
+        200: {
+          description: "List of reviews",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  reviews: { type: "array", items: { $ref: "#/components/schemas/Review" } },
+                  total: { type: "number" },
+                  page: { type: "number" },
+                  pages: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================
+  // PAYMENTS MODULE
+  // ==========================================
+  "/payments/checkout": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Initialize course purchase",
+      description:
+        "Initializes a Paystack transaction for a specific course. Returns authorization URL for redirected payment.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId" ],
+              properties: { courseId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Payment initialized",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: {
+                    type: "object",
+                    properties: {
+                      isFree: { type: "boolean" },
+                      authorization_url: { type: "string" },
+                      access_code: { type: "string" },
+                      reference: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/payments/verify": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Verify payment",
+      description:
+        "Verifies the status of a Paystack transaction using its reference ID.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "reference",
+          in: "query",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Verification result",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/payments/webhook": {
+    post: {
+      tags: [ "Public" ],
+      summary: "Paystack Webhook",
+      description:
+        "Endpoint for Paystack to send event notifications (charge.success, etc.).",
+      responses: { 200: { description: "Webhook received" } },
+    },
+  },
+
+  // ==========================================
+  // CART MODULE
+  // ==========================================
+  "/cart": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get user cart",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Cart" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: [ "Student" ],
+      summary: "Clear cart",
+      security: [ { bearerAuth: [] } ],
+      responses: { 200: { description: "Cart cleared" } },
+    },
+  },
+  "/cart/add": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Add course to cart",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId" ],
+              properties: { courseId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Added successfully" } },
+    },
+  },
+  "/cart/remove/{courseId}": {
+    delete: {
+      tags: [ "Student" ],
+      summary: "Remove course from cart",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Removed successfully" } },
+    },
+  },
+
+  // ==========================================
+  // WISHLIST MODULE
+  // ==========================================
+  "/wishlist": {
+    get: {
+      tags: [ "Student" ],
+      summary: "Get user wishlist",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Wishlist" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/wishlist/toggle": {
+    post: {
+      tags: [ "Student" ],
+      summary: "Toggle course in wishlist",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "courseId" ],
+              properties: { courseId: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: { 200: { description: "Toggled successfully" } },
+    },
+  },
+  "/wishlist/{courseId}": {
+    delete: {
+      tags: [ "Student" ],
+      summary: "Remove course from wishlist",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "courseId",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Removed successfully" } },
+    },
+  },
+
+  // ==========================================
+  // BLOG MODULE
+  // ==========================================
+  "/blog": {
+    get: {
+      tags: [ "Public" ],
+      summary: "List blog posts",
+      description:
+        "Returns a paginated list of published blog posts. Supports filtering by category and tag.",
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "category",
+          in: "query",
+          schema: { type: "string" },
+          description: "Category ID",
+        },
+        {
+          name: "tag",
+          in: "query",
+          schema: { type: "string" },
+          description: "Filter by tag",
+        },
+        {
+          name: "search",
+          in: "query",
+          schema: { type: "string" },
+          description: "Text search in title and content",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  posts: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/BlogPost" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Instructor" ],
+      summary: "Create a blog post",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/BlogPost" },
+          },
+        },
+      },
+      responses: { 201: { description: "Post created" } },
+    },
+  },
+  "/blog/my": {
+    get: {
+      tags: [ "Instructor" ],
+      summary: "List my blog posts",
+      description:
+        "Returns a paginated list of blog posts created by the authenticated instructor or admin. Supports filtering by category, tag, status, and search.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 10 },
+        },
+        {
+          name: "category",
+          in: "query",
+          schema: { type: "string" },
+          description: "Category ID",
+        },
+        {
+          name: "tag",
+          in: "query",
+          schema: { type: "string" },
+          description: "Filter by tag",
+        },
+        {
+          name: "status",
+          in: "query",
+          schema: { type: "string", enum: [ "draft", "published" ] },
+          description: "Filter by post status",
+        },
+        {
+          name: "search",
+          in: "query",
+          schema: { type: "string" },
+          description: "Text search in title and content",
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  posts: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/BlogPost" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/blog/{slug}": {
+    get: {
+      tags: [ "Public" ],
+      summary: "Get blog post by slug",
+      parameters: [
+        {
+          name: "slug",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BlogPost" },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/blog/{id}": {
+    patch: {
+      tags: [ "Instructor" ],
+      summary: "Update blog post",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/BlogPost" },
+          },
+        },
+      },
+      responses: { 200: { description: "Post updated" } },
+    },
+    delete: {
+      tags: [ "Instructor" ],
+      summary: "Delete blog post",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Post deleted" } },
+    },
+  },
+
+  // ==========================================
+  // ASSETS MODULE
+  // ==========================================
+  "/assets/upload": {
+    post: {
+      tags: [ "Assets" ],
+      summary: "Upload a file",
+      description:
+        "Uploads a file to Cloudinary and saves the metadata. Supports folder-based organization. Non-admin users can only upload to their own folders; admins can upload to any folder.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              properties: {
+                file: { type: "string", format: "binary" },
+                folder: { type: "string", default: "lumina/general" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "File uploaded",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Asset" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assets": {
+    get: {
+      tags: [ "Assets" ],
+      summary: "List assets",
+      description:
+        "Admins can list all assets. Non-admin users only see assets they created.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "page",
+          in: "query",
+          schema: { type: "integer", default: 1 },
+        },
+        {
+          name: "limit",
+          in: "query",
+          schema: { type: "integer", default: 20 },
+        },
+        { name: "folder", in: "query", schema: { type: "string" } },
+        {
+          name: "type",
+          in: "query",
+          schema: { type: "string", enum: [ "image", "video", "raw" ] },
+        },
+        { name: "search", in: "query", schema: { type: "string" } },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  assets: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Asset" },
+                  },
+                  total: { type: "integer" },
+                  page: { type: "integer" },
+                  pages: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assets/folders": {
+    get: {
+      tags: [ "Assets" ],
+      summary: "List user folders",
+      description:
+        "Admins see all folders. Non-admin users only see folders they have created.",
+      security: [ { bearerAuth: [] } ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { type: "array", items: { $ref: "#/components/schemas/Folder" } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: [ "Assets" ],
+      summary: "Create a new folder",
+      description: "Creates a new folder for organizing assets.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "name" ],
+              properties: {
+                name: { type: "string", description: "Name of the folder" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: "Folder created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/Folder" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assets/folders/{id}": {
+    delete: {
+      tags: [ "Assets" ],
+      summary: "Delete a folder",
+      description: "Deletes a folder and all assets contained within it from both DB and Cloudinary.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "Folder deleted successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  message: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/assets/{id}": {
+    delete: {
+      tags: [ "Assets" ],
+      summary: "Delete an asset",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: { 200: { description: "Asset deleted" } },
+    },
+  },
+  "/system-admin/settings": {
+    patch: {
+      tags: [ "Admin" ],
+      summary: "Update platform system settings",
+      description:
+        "Allows administrators to update specific platform settings using a key-value store.",
+      security: [ { bearerAuth: [] } ],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: [ "key", "value" ],
+              properties: {
+                key: { type: "string" },
+                value: { type: "object" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Settings updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { $ref: "#/components/schemas/SystemSetting" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/system-admin/settings/{key}": {
+    get: {
+      tags: [ "Admin" ],
+      summary: "Get a platform setting",
+      description:
+        "Returns the value of a specific platform setting by its key.",
+      security: [ { bearerAuth: [] } ],
+      parameters: [
+        {
+          name: "key",
+          in: "path",
+          required: true,
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        200: {
+          description: "OK",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  data: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+        404: { description: "Setting not found" },
+      },
+    },
+  },
+};

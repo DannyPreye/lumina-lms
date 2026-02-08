@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ILearningAnalytics extends Document
+export interface ILearningAnalytics extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     courseId: Types.ObjectId;
@@ -69,5 +70,7 @@ const learningAnalyticsSchema = new Schema<ILearningAnalytics>(
 
 // Index for daily tracking per user/course
 learningAnalyticsSchema.index({ userId: 1, courseId: 1, date: 1 }, { unique: true });
+
+learningAnalyticsSchema.plugin(tenantPlugin);
 
 export const LearningAnalytics = model<ILearningAnalytics>('LearningAnalytics', learningAnalyticsSchema);

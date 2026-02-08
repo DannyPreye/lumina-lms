@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ILesson extends Document
+export interface ILesson extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     moduleId: Types.ObjectId;
@@ -109,5 +110,7 @@ const lessonSchema = new Schema<ILesson>(
 lessonSchema.index({ courseId: 1 });
 lessonSchema.index({ moduleId: 1, order: 1 });
 lessonSchema.index({ contentType: 1 });
+
+lessonSchema.plugin(tenantPlugin);
 
 export const Lesson = model<ILesson>('Lesson', lessonSchema);

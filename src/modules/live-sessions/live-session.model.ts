@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ILiveSession extends Document
+export interface ILiveSession extends Document, ITenantAware
 {
     courseId: Types.ObjectId;
     instructorId: Types.ObjectId;
@@ -129,5 +130,7 @@ const liveSessionSchema = new Schema<ILiveSession>(
 );
 
 liveSessionSchema.index({ courseId: 1, scheduledStart: 1 });
+
+liveSessionSchema.plugin(tenantPlugin);
 
 export const LiveSession = model<ILiveSession>('LiveSession', liveSessionSchema);

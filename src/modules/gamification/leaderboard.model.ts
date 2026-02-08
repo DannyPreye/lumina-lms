@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface ILeaderboard extends Document
+export interface ILeaderboard extends Document, ITenantAware
 {
     type: 'global' | 'course' | 'weekly' | 'monthly';
     courseId?: Types.ObjectId;
@@ -44,5 +45,7 @@ const leaderboardSchema = new Schema<ILeaderboard>(
 );
 
 leaderboardSchema.index({ type: 1, courseId: 1, 'period.start': 1 });
+
+leaderboardSchema.plugin(tenantPlugin);
 
 export const Leaderboard = model<ILeaderboard>('Leaderboard', leaderboardSchema);

@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IAsset extends Document
+export interface IAsset extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     fileName: string;
@@ -56,6 +57,9 @@ const assetSchema = new Schema<IAsset>(
 // Search and filter indexes
 assetSchema.index({ userId: 1, folder: 1 });
 assetSchema.index({ fileName: 'text' });
+
+assetSchema.plugin(tenantPlugin);
+folderSchema.plugin(tenantPlugin);
 
 export const Asset = model<IAsset>('Asset', assetSchema);
 

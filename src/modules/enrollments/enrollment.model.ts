@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { tenantPlugin } from '../../common/plugins/tenant.plugin';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IEnrollment extends Document
+export interface IEnrollment extends Document, ITenantAware
 {
     userId: Types.ObjectId;
     courseId: Types.ObjectId;

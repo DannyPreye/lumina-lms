@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IAchievement extends Document
+export interface IAchievement extends Document, ITenantAware
 {
     name: string;
     description: string;
@@ -38,5 +39,7 @@ const achievementSchema = new Schema<IAchievement>(
     },
     { timestamps: { createdAt: true, updatedAt: false } }
 );
+
+achievementSchema.plugin(tenantPlugin);
 
 export const Achievement = model<IAchievement>('Achievement', achievementSchema);

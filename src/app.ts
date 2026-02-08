@@ -30,6 +30,7 @@ import blogRoutes from './modules/blog/blog.routes';
 import assetRoutes from './modules/assets/asset.routes';
 import systemAdminRoutes from './modules/system-admin/system-admin.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
+import pageRoutes from './modules/pages/page.routes';
 
 const app: Application = express();
 
@@ -151,6 +152,9 @@ app.use('/api/v1/system-admin', systemAdminRoutes);
 
 // Dashboard Routes
 app.use('/api/v1/dashboard', dashboardRoutes);
+
+// Page Routes
+app.use('/api/v1/pages', pageRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) =>

@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin, ITenantAware } from '../../common/plugins/tenant.plugin';
 
-export interface IAIGeneratedContent extends Document
+export interface IAIGeneratedContent extends Document, ITenantAware
 {
     type: 'quiz' | 'lesson' | 'summary' | 'feedback' | 'recommendation';
     sourceType: 'lesson' | 'course' | 'user_query';
@@ -46,5 +47,7 @@ const aiGeneratedContentSchema = new Schema<IAIGeneratedContent>(
     },
     { timestamps: { createdAt: true, updatedAt: false } }
 );
+
+aiGeneratedContentSchema.plugin(tenantPlugin);
 
 export const AIGeneratedContent = model<IAIGeneratedContent>('AIGeneratedContent', aiGeneratedContentSchema);
