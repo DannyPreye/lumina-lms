@@ -19,14 +19,13 @@ export const tenantPlugin = (schema: Schema) =>
     });
 
     // 2. Pre-save hook: inject tenantId
-    schema.pre('save' as any, function (this: any, next: any)
+    schema.pre('save' as any, async function (this: any)
     {
         const tenantId = getTenantId();
         // If tenantId is already set (e.g. manually by admin or migration script), don't overwrite
         if (this.isNew && !this.get('tenantId') && tenantId) {
             this.set('tenantId', tenantId);
         }
-        next();
     });
 
     // 3. Pre-find hooks: filter by tenantId
@@ -36,16 +35,16 @@ export const tenantPlugin = (schema: Schema) =>
         'find',
         'findOne',
         'findOneAndDelete',
-        'findOneAndRemove',
         'findOneAndUpdate',
-        'update',
         'updateOne',
         'updateMany',
+        'deleteOne',
+        'deleteMany',
     ];
 
     methods.forEach((method) =>
     {
-        schema.pre(method as any, function (this: any, next: (err?: any) => void)
+        schema.pre(method as any, async function (this: any)
         {
             const tenantId = getTenantId();
 
@@ -56,7 +55,6 @@ export const tenantPlugin = (schema: Schema) =>
                     this.setQuery({ ...filter, tenantId });
                 }
             }
-            next();
         });
     });
 };
