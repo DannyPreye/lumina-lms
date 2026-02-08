@@ -8,7 +8,8 @@ import crypto from 'crypto';
 import { Converter } from 'easy-currencies';
 
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || '';
+import { getTenant } from '../../common/contexts/tenant.context';
+
 // Cache exchange rate for 1 hour to avoid excessive API calls
 let cachedRate: { rate: number; timestamp: number; } | null = null;
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -53,13 +54,16 @@ export class PaymentService
 
         const amount = Math.round(amountInNGN * 100); // Paystack takes kobo (NGN)
 
+        const { paystackSecretKey } = this.getPaymentConfig();
+        const baseUrl = this.getTenantUrl();
+
         try {
             const response = await axios.post(
                 'https://api.paystack.co/transaction/initialize',
                 {
                     email,
                     amount,
-                    callback_url: `${process.env.FRONTEND_URL}/payment/verify`,
+                    callback_url: `${baseUrl}/payment/verify`,
                     metadata: {
                         userId,
                         courseId,
@@ -68,7 +72,7 @@ export class PaymentService
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+                        Authorization: `Bearer ${paystackSecretKey}`,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -99,12 +103,13 @@ export class PaymentService
      */
     static async verifyPayment(reference: string)
     {
+        const { paystackSecretKey } = this.getPaymentConfig();
         try {
             const response = await axios.get(
                 `https://api.paystack.co/transaction/verify/${reference}`,
                 {
                     headers: {
-                        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+                        Authorization: `Bearer ${paystackSecretKey}`
                     }
                 }
             );
@@ -146,8 +151,9 @@ export class PaymentService
      */
     static async handleWebhook(payload: any, signature: string)
     {
+        const { paystackSecretKey } = this.getPaymentConfig();
         const hash = crypto
-            .createHmac('sha512', PAYSTACK_SECRET_KEY)
+            .createHmac('sha512', paystackSecretKey)
             .update(JSON.stringify(payload))
             .digest('hex');
 
@@ -226,4 +232,35 @@ export class PaymentService
         }
     }
 
+    private static getPaymentConfig()
+    {
+        const tenant = getTenant();
+        if (!tenant) throw createError(500, 'Tenant context not found for payment');
+
+        const { paystackSecretKey } = tenant.config.payments || {}; // Safe navigation
+        if (!paystackSecretKey) throw createError(400, 'Payment configuration missing for this tenant');
+
+        return { paystackSecretKey };
+    }
+
+    private static getTenantUrl()
+    {
+        const tenant = getTenant();
+        if (!tenant) return process.env.FRONTEND_URL;
+
+        if (tenant.domain) return `https://${tenant.domain}`;
+        // Fallback to subdomain logic if needed, or assume FRONTEND_URL is wildcard capable
+        // For this implementation, we'll try to reconstruct from slug + base domain if FRONTEND_URL has it
+        // Or mainly simpler: just use tenant.domain if custom, else assume current logic handles it or use a specific env
+
+        // Simpler approach: If we are in tenant context, we trust the requester knew the URL.
+        // But for callback_url, we need to tell Paystack where to send the user back.
+        // Let's assume FRONTEND_URL is the base platform URL e.g. "lms.com"
+        // and we want "school-a.lms.com"
+
+        const mainUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        // If localhost, strict subdomain handling is tricky without /etc/hosts.
+        // Let's return a safe bet or the configured domain.
+        return tenant.domain ? `https://${tenant.domain}` : mainUrl; // TODO: Improve subdomain construction
+    }
 }

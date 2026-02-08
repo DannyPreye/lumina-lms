@@ -1,5 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { tenantPlugin } from '../../common/plugins/tenant.plugin';
 
 export interface IUser extends Document
 {
@@ -29,7 +30,7 @@ export interface IUser extends Document
 
 const userSchema = new Schema<IUser>(
     {
-        email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+        email: { type: String, required: true, lowercase: true, trim: true },
         passwordHash: { type: String, required: false, select: false },
         roles: {
             type: [ String ],
@@ -82,6 +83,10 @@ userSchema.virtual('instructorProfile', {
 // Indexes for performance
 userSchema.index({ roles: 1 });
 userSchema.index({ status: 1 });
+userSchema.index({ email: 1, tenantId: 1 }, { unique: true });
+
+// Apply Tenant Plugin
+userSchema.plugin(tenantPlugin);
 
 // Pre-save hook for password hashing
 userSchema.pre('save', async function ()

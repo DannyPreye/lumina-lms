@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin } from '../../common/plugins/tenant.plugin';
 
 export interface ICourse extends Document
 {
@@ -68,7 +69,7 @@ export interface ICourse extends Document
 const courseSchema = new Schema<ICourse>(
     {
         title: { type: String, required: true, trim: true },
-        slug: { type: String, required: true, unique: true, lowercase: true },
+        slug: { type: String, required: true, lowercase: true },
         shortDescription: { type: String, required: true },
         fullDescription: { type: String, required: true },
         instructorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -148,5 +149,9 @@ courseSchema.index({ status: 1 });
 courseSchema.index({ level: 1 });
 courseSchema.index({ createdAt: -1 }); // Often used for sorting
 courseSchema.index({ title: 'text', shortDescription: 'text' }); // Search optimization
+courseSchema.index({ slug: 1, tenantId: 1 }, { unique: true });
+
+// Apply Tenant Plugin
+courseSchema.plugin(tenantPlugin);
 
 export const Course = model<ICourse>('Course', courseSchema);

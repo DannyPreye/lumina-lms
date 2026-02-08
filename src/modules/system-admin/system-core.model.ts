@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin } from '../../common/plugins/tenant.plugin';
 
 export interface ITransaction extends Document
 {
@@ -35,7 +36,7 @@ const transactionSchema = new Schema<ITransaction>(
         currency: { type: String, default: 'USD' },
         paymentMethod: { type: String, enum: [ 'card', 'paypal', 'stripe', 'other' ], required: true },
         paymentProcessor: String,
-        processorTransactionId: { type: String, required: true, unique: true },
+        processorTransactionId: { type: String, required: true },
         status: { type: String, enum: [ 'pending', 'completed', 'failed', 'refunded' ], default: 'pending' },
         metadata: {
             discountCode: String,
@@ -52,6 +53,9 @@ const transactionSchema = new Schema<ITransaction>(
     { timestamps: true }
 );
 
+transactionSchema.index({ processorTransactionId: 1, tenantId: 1 }, { unique: true });
+transactionSchema.plugin(tenantPlugin);
+
 export const Transaction = model<ITransaction>('Transaction', transactionSchema);
 
 export interface ISystemSetting extends Document
@@ -66,7 +70,7 @@ export interface ISystemSetting extends Document
 
 const systemSettingSchema = new Schema<ISystemSetting>(
     {
-        key: { type: String, required: true, unique: true },
+        key: { type: String, required: true },
         value: { type: Schema.Types.Mixed, required: true },
         category: { type: String, enum: [ 'general', 'email', 'payment', 'ai', 'security' ], default: 'general' },
         isEncrypted: { type: Boolean, default: false },
@@ -75,6 +79,8 @@ const systemSettingSchema = new Schema<ISystemSetting>(
     { timestamps: { createdAt: false, updatedAt: true } }
 );
 
+systemSettingSchema.index({ key: 1, tenantId: 1 }, { unique: true });
+systemSettingSchema.plugin(tenantPlugin);
 export const SystemSetting = model<ISystemSetting>('SystemSetting', systemSettingSchema);
 
 export interface IAuditLog extends Document
@@ -109,4 +115,5 @@ const auditLogSchema = new Schema<IAuditLog>(
     { timestamps: false }
 );
 
+auditLogSchema.plugin(tenantPlugin);
 export const AuditLog = model<IAuditLog>('AuditLog', auditLogSchema);

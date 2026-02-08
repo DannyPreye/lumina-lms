@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import createError from 'http-errors';
 import { mountSwagger } from './docs/swagger';
 import passport from './config/passport.config';
+import { tenantMiddleware } from './common/middlewares/tenant.middleware';
 
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
@@ -62,6 +63,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+
+// Tenant Middleware
+app.use(tenantMiddleware);
 
 // Workaround for Express 5 compatibility with mongoSanitize
 // Express 5 makes req.query a getter-only property, which breaks mongoSanitize

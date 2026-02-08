@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { tenantPlugin } from '../../common/plugins/tenant.plugin';
 
 export interface IEnrollment extends Document
 {
@@ -111,7 +112,8 @@ const enrollmentSchema = new Schema<IEnrollment>(
 );
 
 // Index for quick lookup of user enrollments
-enrollmentSchema.index({ userId: 1, courseId: 1 }, { unique: true });
+enrollmentSchema.index({ userId: 1, courseId: 1, tenantId: 1 }, { unique: true });
+enrollmentSchema.plugin(tenantPlugin);
 enrollmentSchema.index({ status: 1 });
 enrollmentSchema.index({ enrolledAt: -1 });
 

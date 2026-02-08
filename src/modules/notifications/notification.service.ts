@@ -1,4 +1,5 @@
 import { Notification, INotification } from './notification.model';
+import { getTenant } from '../../common/contexts/tenant.context';
 import createError from 'http-errors';
 
 export class NotificationService
@@ -9,14 +10,43 @@ export class NotificationService
      */
     static async send(notificationData: any)
     {
+        const tenant = getTenant();
+
+        // Prepare branding data for email/template
+        const branding = tenant ? {
+            name: tenant.name,
+            logo: tenant.config.branding.logoUrl,
+            color: tenant.config.branding.primaryColor,
+            font: tenant.config.branding.fontFamily
+        } : {
+            name: 'Lumina LMS',
+            color: '#007bff'
+        };
+
         const notification = await Notification.create({
             ...notificationData,
+            tenantId: tenant?._id, // Explicitly set if not handled by plugin (though plugin should handle it)
+            metadata: {
+                ...notificationData.metadata,
+                branding // Store branding snapshot if needed
+            },
             sentAt: new Date(),
         });
 
         // TODO: Integrate with SendGrid (Email), Firebase (Push), or Twilio (SMS) based on channels
         if (notification.channels.email) {
-            // await EmailProvider.send(...)
+            // await EmailProvider.send({
+            //    to: notification.userId, // resolve email
+            //    subject: notification.title,
+            //    templateId: '...', // dynamic based on tenant?
+            //    dynamicTemplateData: {
+            //       ...notification.metadata,
+            //       tenant_name: branding.name,
+            //       tenant_logo: branding.logo,
+            //       primary_color: branding.color
+            //    }
+            // })
+            console.log(`[Email] Sending to user ${notification.userId} from ${branding.name}`);
         }
 
         return notification;
