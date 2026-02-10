@@ -12,12 +12,13 @@ export const TenantPaths: OpenAPIV3.PathsObject = {
                     "application/json": {
                         schema: {
                             type: "object",
-                            required: [ "name" ],
+                            required: [ "name", "adminEmail", "adminName" ],
                             properties: {
                                 name: { type: "string", example: "Acme University" },
                                 slug: { type: "string", example: "acme" },
                                 domain: { type: "string", example: "acme.university.com" },
-                                ownerId: { type: "string", example: "60d0fe4f5311236168a109ca" },
+                                adminEmail: { type: "string", example: "admin@acme.edu" },
+                                adminName: { type: "string", example: "Acme Admin" },
                             },
                         },
                     },
@@ -32,7 +33,21 @@ export const TenantPaths: OpenAPIV3.PathsObject = {
                                 type: "object",
                                 properties: {
                                     success: { type: "boolean" },
-                                    data: { $ref: "#/components/schemas/Tenant" },
+                                    data: {
+                                        type: "object",
+                                        properties: {
+                                            tenant: { $ref: "#/components/schemas/Tenant" },
+                                            adminUser: {
+                                                type: "object",
+                                                properties: {
+                                                    email: { type: "string" },
+                                                    name: { type: "string" },
+                                                    tempPassword: { type: "string" },
+                                                    invitationToken: { type: "string" },
+                                                }
+                                            }
+                                        }
+                                    },
                                 },
                             },
                         },
